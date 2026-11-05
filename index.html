@@ -88,7 +88,7 @@ function applyTW(){D.pts.forEach((p,i)=>{const t=D.types[p[2]];PW[i]=t==='약국
 const RING1=100,RING2=100,RW2=1;
 const RBIG=300;let ISBIG=null;
 function ring(la,lo){if(!ISBIG)ISBIG=D.types.map(t=>t==='상급종합병원'||t==='종합병원');let W=0,n=0;const dl=RBIG/111320;for(let i=0;i<LAT.length;i++){if(Math.abs(LAT[i]-la)>dl)continue;const d=dist(la,lo,LAT[i],LON[i]);const big=ISBIG[TY[i]];if(d>(big?RBIG:RING2))continue;const k=d<=RING1?1:.4;if(GRP[TY[i]]==='ph')n+=k;else W+=k*PW[i]}return{W,n}}
-const BT=D2.btypes,BL=D2.b.map(b=>({la:b[0]/1e5,lo:b[1]/1e5,n:b[2],nm:b[3],ad:b[4],ph:b[5],md:b[6]}));
+const BT=D2.btypes,BL0=D2.b.map(b=>({la:b[0]/1e5,lo:b[1]/1e5,n:b[2],nm:b[3],ad:b[4],ph:b[5],md:b[6]})),BL=BL0.filter(b=>!b.md.some(m=>m[2]>=0&&['상급종합병원','종합병원'].includes(BT[m[2]])));
 const wOf=t=>TW[t]??.3;const BIGT=['상급종합병원','종합병원'];
 const WB={in:45,gap:35,w1:8,c1:5,r:4,f:3,a:3},WB0=Object.assign({},WB);let CMPB='ph';let BIN=[],SB=null;
 const cv=document.getElementById('map'),cx=cv.getContext('2d'),$=id=>document.getElementById(id);
@@ -266,12 +266,20 @@ $('loc').onclick=()=>{if(!navigator.geolocation){toast('이 브라우저는 위�
 toast('내 위치를 찾는 중이에요…');navigator.geolocation.getCurrentPosition(p=>{if(goTo(p.coords.latitude,p.coords.longitude)){toast('내 위치에 핀을 찍었어요')}},e=>toast(e.code===1?'위치 권한이 꺼져 있어요. 브라우저 설정에서 허용해 주세요':'위치를 가져오지 못했어요'),{enableHighAccuracy:true,timeout:10000})};
 const nrm=t=>String(t||'').toLowerCase().replace(/\s+/g,'').replace(/서울특별시|서울시/g,'');
 function localSearch(q){const k=nrm(q);if(k.length<2)return[];const r=[];
-for(const b of BL){const a=nrm(b.ad),n=nrm(b.nm);let sc=0;if(n&&n.includes(k))sc=n===k?3:2;else if(a.includes(k))sc=1;if(sc)r.push({sc,la:b.la,lo:b.lo,t:(b.nm||b.ad.split(' 외')[0]),s:b.nm?b.ad.split(' 외')[0]:'주소'});
+for(const b of BL0){const a=nrm(b.ad),n=nrm(b.nm);let sc=0;if(n&&n.includes(k))sc=n===k?3:2;else if(a.includes(k))sc=1;if(sc)r.push({sc,la:b.la,lo:b.lo,t:(b.nm||b.ad.split(' 외')[0]),s:b.nm?b.ad.split(' 외')[0]:'주소'});
 for(const p of b.ph){const pn=nrm(p[0]);if(pn.includes(k)){r.push({sc:3,la:b.la,lo:b.lo,t:p[0],s:'약국 · '+b.ad.split(' 외')[0]})}}}
 r.sort((a,b)=>b.sc-a.sc);const seen=new Set();return r.filter(x=>{const id=x.t+x.s;if(seen.has(id))return false;seen.add(id);return true}).slice(0,6)}
 const KAKAO_KEY='edb22731996c445efdd1bcf89e849ee0';// 카카오 개발자 사이트의 JavaScript 키를 여기에 넣으면 카카오 장소 검색을 써요
 let KK=null;function loadKakao(){if(KK)return KK;KK=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+KAKAO_KEY+'&libraries=services&autoload=false';sc.onload=()=>kakao.maps.load(()=>ok());sc.onerror=()=>no(new Error('load'));document.head.appendChild(sc)});return KK}
-let KERR='';async function kakaoSearch(q){try{await loadKakao();const ps=new kakao.maps.services.Places();const run=(f,...a)=>new Promise(r=>f.call(ps,...a,(d,st)=>r(st==='OK'?d:[])));const opt={location:new kakao.maps.LatLng(37.5757,126.9134),sort:kakao.maps.services.SortBy.DISTANCE,size:8};let d=await run(ps.keywordSearch,q,opt);if(!d.length)d=await run(ps.keywordSearch,q+' 아파트',opt);if(!d.length&&/\s/.test(q))d=await run(ps.keywordSearch,q.replace(/\s+/g,''),opt);if(!d.length){const g=new kakao.maps.services.Geocoder();d=await new Promise(r=>g.addressSearch(q,(x,st)=>r(st==='OK'?x.map(i=>({place_name:i.address_name,address_name:'주소',y:i.y,x:i.x})):[])))}return d.map(i=>({sc:0,la:+i.y,lo:+i.x,t:i.place_name,s:i.road_address_name||i.address_name,web:1}))}catch(e){KERR='카카오 검색을 불러오지 못했어요 (도메인 등록·키 확인)';return[]}}
+let KERR='';async function kakaoSearch(q){try{await loadKakao();const ps=new kakao.maps.services.Places(),SB=kakao.maps.services.SortBy;const run=(kw,o)=>new Promise(r=>ps.keywordSearch(kw,(d,st)=>r(st==='OK'?d:[]),o));
+const ctr=new kakao.maps.LatLng(CLAT||37.5757,CLON||126.9134),near={location:ctr,sort:SB.DISTANCE,size:10},acc={location:ctr,size:10};
+const base=q.replace(/\s+/g,'');const qs=[q,base];if(!/아파트$/.test(base))qs.push(base+'아파트');if(!/^dmc/i.test(base))qs.push('DMC'+base);
+const jobs=[];qs.forEach(k=>{jobs.push(run(k,near));jobs.push(run(k,acc))});
+let all=(await Promise.all(jobs)).flat();
+if(!all.length){const g=new kakao.maps.services.Geocoder();all=await new Promise(r=>g.addressSearch(q,(x,st)=>r(st==='OK'?x.map(i=>({place_name:i.address_name,address_name:'주소',y:i.y,x:i.x})):[])))}
+const k=nrm(q),seen=new Set(),out=[];
+all.forEach(i=>{const id=i.place_name+'|'+(i.road_address_name||i.address_name);if(seen.has(id))return;seen.add(id);const hit=nrm(i.place_name).includes(k);out.push({sc:hit?2:0,la:+i.y,lo:+i.x,t:i.place_name,s:i.road_address_name||i.address_name,web:1})});
+out.sort((a,b)=>b.sc-a.sc);return out.slice(0,8)}catch(e){KERR='카카오 검색을 불러오지 못했어요 (도메인 등록·키 확인)';return[]}}
 async function webSearch(q){if(KAKAO_KEY){const k=await kakaoSearch(q);if(k.length)return k}try{const one=async t=>{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=kr&accept-language=ko&viewbox=126.80,37.66,127.06,37.48&q='+encodeURIComponent(t));return await r.json()};let j=await one(/서울/.test(q)?q:'서울 '+q);if(!j.length&&!/서울/.test(q))j=await one(q);if(!j.length&&/역$/.test(q))j=await one(q+' 지하철');return j.map(x=>({sc:0,la:+x.lat,lo:+x.lon,t:x.display_name.split(',')[0],s:x.display_name.split(',').slice(1,4).join(',').trim(),web:1}))}catch(e){return[]}}
 let QT=0,QD=0;function showQ(list,msg){const b=$('qr');if(!list.length){b.innerHTML='<div class="mut" style="padding:10px 12px">'+esc(msg||'찾지 못했어요. 도로명 주소나 건물 이름으로 다시 해 보세요')+'</div>'}else{b.innerHTML=list.map((x,i)=>'<button data-i="'+i+'" style="display:block;width:100%;text-align:left;font:inherit;padding:9px 12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--fg);cursor:pointer"><b>'+esc(x.t)+'</b><div class="mut" style="font-size:12px">'+esc(x.s)+(x.web?' · 인터넷 검색':'')+'</div></button>').join('');b.querySelectorAll('button').forEach(bt=>bt.onclick=()=>{const x=list[+bt.dataset.i];clearTimeout(QD);QT++;b.style.display='none';$('q').value=x.t;goTo(x.la,x.lo)})}b.style.display='block'}
 async function runQ(){const q=$('q').value.trim();if(q.length<2){$('qr').style.display='none';return}const my=++QT;let l=localSearch(q);if(l.length<6){showQ(l,'인터넷에서 찾는 중…');const w=await webSearch(q);if(my!==QT)return;l=l.concat(w)}if(my===QT)showQ(l,KERR||undefined)}
