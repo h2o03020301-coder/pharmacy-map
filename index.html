@@ -71,7 +71,7 @@ svg text{fill:var(--mut);font-size:10px}
 <aside>
 <h1>약국 입지 지도<small>서대문 · 은평 · 마포 일대 · 공공데이터로 보는 주변 상권</small></h1>
 <div id="sbox" style="position:relative;margin:8px 0"><input id="q" type="search" placeholder="주소·건물·약국 이름 검색 (예: 가좌로 30, 신촌세브란스)" aria-label="주소 검색" style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)"><div id="qr" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:20;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin-top:4px;max-height:280px;overflow:auto;box-shadow:0 6px 18px rgba(0,0,0,.15)"></div></div>
-<div class="mut" id="rad">분석 반경 300m (도보 약 4분) 고정</div>
+<div class="mut" id="rad">분석 반경 100m (도보 약 1분) 고정</div>
 <div id="out" class="sec"><div class="mut">지도에서 보고 싶은 자리를 누르면 그 주변의 약국, 병·의원, 인구를 보여줘요.</div></div>
 <div id="bd"></div>
 <details class="sec" id="twbox"><summary><b>진료과 가중치</b> <span class="mut">(처방전이 약국으로 얼마나 나오는지에 대한 가정)</span></summary><div class="warn" style="margin-top:6px">진료과별 값은 제가 정한 가정이에요. 참고로 2009년 심평원 자료를 인용한 기사(데일리팜, 2010)에서 의원 외래처방률이 소아청소년과 약 96%, 이비인후과 약 91%, 내과 약 90%, 정형외과 약 50%, 성형외과 약 38%, 정신과 약 13%였어요. 오래된 자료이고 안과·피부과·치과 수치는 확인하지 못했어요.</div><div id="twl" style="display:grid;gap:4px;margin-top:8px"></div><button class="lk" id="twreset" style="margin-top:8px">기본값으로 되돌리기</button></details>
@@ -85,13 +85,14 @@ const GRP=D.types.map(()=>'lo');
 const TW={'내과/소아과 의원':1,'이비인후과 의원':1,'상급종합병원':10,'종합병원':6,'병원':1,'신경/정신과 의원':.5,'외과 의원':.6,'피부/비뇨기과 의원':.7,'산부인과 의원':.7,'안과 의원':.6,'요양병원':.4,'기타 의원':.4,'치과의원':.3,'치과병원':.3,'성형외과 의원':.4,'방사선 진단/병리 검사 의원':.1,'한의원':.05,'한방병원':.05,'유사 의료업':0};
 const TW0=Object.assign({},TW),PW=new Float32Array(D.pts.length);
 function applyTW(){D.pts.forEach((p,i)=>{const t=D.types[p[2]];PW[i]=t==='약국'?0:(TW[t]??.3);GRP[p[2]]=t==='약국'?'ph':(TW[t]??.3)>=.6?'hi':'lo'})}
-const RING1=100,RING2=300,RW2=.4;
-function ring(la,lo){let W=0,n=0;const dl=RING2/111320;for(let i=0;i<LAT.length;i++){if(Math.abs(LAT[i]-la)>dl)continue;const d=dist(la,lo,LAT[i],LON[i]);if(d>RING2)continue;const k=d<=RING1?1:RW2;if(GRP[TY[i]]==='ph')n+=k;else W+=k*PW[i]}return{W,n}}
+const RING1=100,RING2=100,RW2=1;
+const RBIG=300;let ISBIG=null;
+function ring(la,lo){if(!ISBIG)ISBIG=D.types.map(t=>t==='상급종합병원'||t==='종합병원');let W=0,n=0;const dl=RBIG/111320;for(let i=0;i<LAT.length;i++){if(Math.abs(LAT[i]-la)>dl)continue;const d=dist(la,lo,LAT[i],LON[i]);const big=ISBIG[TY[i]];if(d>(big?RBIG:RING2))continue;const k=d<=RING1?1:.4;if(GRP[TY[i]]==='ph')n+=k;else W+=k*PW[i]}return{W,n}}
 const BT=D2.btypes,BL=D2.b.map(b=>({la:b[0]/1e5,lo:b[1]/1e5,n:b[2],nm:b[3],ad:b[4],ph:b[5],md:b[6]}));
 const wOf=t=>TW[t]??.3;const BIGT=['상급종합병원','종합병원'];
 const WB={in:45,gap:35,w1:8,c1:5,r:4,f:3,a:3},WB0=Object.assign({},WB);let CMPB='ph';let BIN=[],SB=null;
 const cv=document.getElementById('map'),cx=cv.getContext('2d'),$=id=>document.getElementById(id);
-let W=0,H=0,dpr=1,Z=15,CLAT=37.5785,CLON=126.9187,SEL=null,R=300,raf=0;
+let W=0,H=0,dpr=1,Z=15,CLAT=37.5785,CLON=126.9187,SEL=null,R=100,RB=500,raf=0;
 const tiles=new Map();let FAIL=0;
 const ws=z=>256*Math.pow(2,z);
 const px=(lat,lon,z)=>{const s=ws(z),r=lat*Math.PI/180;return[(lon+180)/360*s,(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*s]};
@@ -105,7 +106,7 @@ t.img.onload=()=>{t.ok=true;draw()};
 t.img.onerror=()=>{t.n++;if(t.n<src.length){t.img.src=src[t.n]()}else{FAIL++;if(FAIL>6)$('hint').textContent='배경 지도를 못 불러왔어요. 인터넷 연결을 확인해 주세요'}};
 t.img.src=src[0]();tiles.set(k,t)}return t}
 function draw(){if(!raf)raf=requestAnimationFrame(render)}
-function pill(x,y){cx.save();cx.translate(x,y);
+function pill(x,y){cx.save();cx.translate(x,y);cx.scale(.55,.55);
 cx.fillStyle='rgba(0,0,0,.2)';cx.beginPath();cx.ellipse(0,17,13,4,0,0,7);cx.fill();
 cx.rotate(-.55);const L=42,Wd=24,r=Wd/2,pa=()=>{cx.beginPath();cx.moveTo(-L/2+r,-r);cx.lineTo(L/2-r,-r);cx.arc(L/2-r,0,r,-Math.PI/2,Math.PI/2);cx.lineTo(-L/2+r,r);cx.arc(-L/2+r,0,r,Math.PI/2,Math.PI*1.5);cx.closePath()};
 cx.lineJoin='round';pa();cx.fillStyle='#fff';cx.fill();
@@ -155,7 +156,7 @@ ph.sort((a,b)=>a[0]-b[0]);
 let nd=1e9,nn='';for(let i=0;i<LAT.length;i++)if(GRP[TY[i]]==='ph'){const d=dist(la,lo,LAT[i],LON[i]);if(d<nd){nd=d;nn=NM[i]}}
 const bigH=[];for(let i=0;i<LAT.length;i++){if(!BIGT.includes(D.types[TY[i]]))continue;const d=dist(la,lo,LAT[i],LON[i]);if(d<=300)bigH.push([d,NM[i],D.types[TY[i]]])}bigH.sort((a,b)=>a[0]-b[0]);
 const dg=dongAt(la,lo);last={nP,nH,Wsum,nd,dg,bigH};
-const dl=R/111320;BIN=BL.filter(b=>Math.abs(b.la-la)<dl&&dist(la,lo,b.la,b.lo)<=R);BIN.forEach(bcomp);bnorm();SB=null;$('bd').innerHTML='';
+const dl=RB/111320;BIN=BL.filter(b=>Math.abs(b.la-la)<dl&&dist(la,lo,b.la,b.lo)<=RB);BIN.forEach(bcomp);bnorm();SB=null;$('bd').innerHTML='';
 last.rg=ring(la,lo);last.samp=sampleComps(la,lo);let nb=null,nbd=45;BIN.forEach(b=>{const d=dist(la,lo,b.la,b.lo);if(d<nbd){nbd=d;nb=b}});last.nb=nb;last.nbd=nbd;
 const rows=Object.entries(hs).sort((a,b)=>b[1]-a[1]),mx=rows.length?rows[0][1]:1;
 let h='<h2>'+(dg?dg.n.replace('서울특별시 ',''):'인구 자료가 없는 지역')+' 부근</h2><div class="mut">반경 '+R+'m 안 · 가장 가까운 약국 '+fmt(nd)+'m ('+esc(nn)+')</div><div id="sc"></div>';
@@ -177,8 +178,8 @@ function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>
 function chart(d){const w=330,h=96,m=Math.max(...d.wd,...d.we),bw=w/24;let s='<svg viewBox="0 0 '+w+' '+(h+16)+'" width="100%" role="img" aria-label="시간대별 생활인구">';d.wd.forEach((v,i)=>{const bh=v/m*h;s+='<rect x="'+(i*bw+1)+'" y="'+(h-bh)+'" width="'+(bw-2)+'" height="'+bh+'" rx="2" fill="'+(i===12?'#e06a45':'#3b6fd4')+'" opacity="'+(i===12?1:.75)+'"/>'});
 s+='<polyline fill="none" stroke="#8a96a3" stroke-width="2" points="'+d.we.map((v,i)=>(i*bw+bw/2)+','+(h-v/m*h)).join(' ')+'"/>';[0,6,12,18,23].forEach(i=>s+='<text x="'+(i*bw+bw/2)+'" y="'+(h+12)+'" text-anchor="middle">'+i+'시</text>');return s+'</svg>'}
 function score(){if(!last)return;const{dg}=last,c=[];
-const rgp=last.rg||{W:0,n:0};c.push(['처방 수요',100*(1-Math.exp(-rgp.W/4)),'w','100m 안은 100%, 100~300m는 40%로 쳐서 진료과 가중치를 곱한 병·의원 합이에요']);
-c.push(['경쟁 정도',100*Math.max(0,1-rgp.n/6),'c','100m 안 약국 1곳, 100~300m 안 약국 0.4곳으로 세요 (6곳이면 0)']);
+const rgp=last.rg||{W:0,n:0};c.push(['처방 수요',100*(1-Math.exp(-rgp.W/6)),'w','반경 100m 안 병·의원에 진료과 가중치를 곱해 더한 값(대학병원급은 300m까지, 100m 밖은 40%)이에요']);
+c.push(['경쟁 정도',100*Math.max(0,1-rgp.n/6),'c','반경 100m 안 약국 수예요 (6곳이면 0점)']);
 if(dg){c.push(['거주 수요',100*Math.min(1,dg.pop/35000),'r','동 주민등록 인구 (3.5만 명이면 100)']);c.push(['낮 유동',100*Math.min(1,dg.wd[12]/80000),'f','평일 낮 12시 생활인구 (8만 명이면 100)']);c.push(['고령 비율',ageIdx(dg),'a','동 65세 이상 비율 (10%면 0, 30%면 100). 만성질환 처방이 많다는 가정이에요'])}
 let ws=0,sum=0;c.forEach(x=>{ws+=WT[x[2]];sum+=x[1]*WT[x[2]]});const tot=ws?sum/ws:0;let h='';
 if(dg&&last.samp&&last.samp.length>=5){const gu=dg.c.slice(0,4),gn=GUN[gu]||'같은 구';let arr,lab;
@@ -201,7 +202,7 @@ const TIERS=[
 [0,'최악','#c8402f',['여기서 개국하면 약보다 파리를 조제하게 돼요. 🪰','이 자리는 약사가 아니라 마음 수련이 필요해요. 도망가세요. 🏃','사주로 치면 삼재. 다른 자리를 짚어 보세요. 😱','권리금보다 손실이 먼저 오는 자리예요. 💸']]];
 const BTIERS={'최고':['건물 통째로 입점 1순위. 엘리베이터에서 환자가 알아서 내려와요. 🛗','같은 건물 처방전이 줄을 서는 자리예요. 📜'],'꽤 좋음':['건물 단위로 보면 꽤 괜찮은 입점지예요. 👍','로비 한 칸만 있어도 해볼 만해요. 🚪'],'그냥 그래요':['평범한 건물이에요. 간판 크기로 승부를 봐야 해요. 🪧','건물 이름만 멋있고 점수는 무난해요. 🏷️'],'별로':['이 건물은 약보다 사무실이 어울려요. 🗄️','1층 자리가 나도 한 번 더 생각해 보세요. 🤔'],'최악':['이 건물에서 개국하면 파리만 처방돼요. 🪰','입점하는 순간 월세가 눈에 밟혀요. 💸']};
 const TT={'최고':'최고예요','꽤 좋음':'괜찮아요','그냥 그래요':'평범해요','별로':'별로예요','최악':'최악이에요'};
-const REA={w:['근처에 약 처방과 관련이 큰 병·의원이 적어요','근처에 약 처방과 관련이 큰 병·의원이 많아요'],c:[x=>'300m 안에 약국이 이미 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','300m 안에 경쟁 약국이 적어요'],r:['사는 사람이 적은 동네예요','사는 사람이 많은 동네예요'],f:['낮에는 사람이 적은 편이에요','낮에 사람이 많이 모여요'],a:['어르신 비율이 낮은 동네예요','어르신이 많은 동네예요'],in:[x=>x.nM>0?'같은 건물 병·의원이 '+x.nM+'곳뿐이라 약 처방 수요가 크지 않아요':'같은 건물에 약 처방과 관련이 큰 병·의원이 없어요','같은 건물에 약 처방과 관련이 큰 병·의원이 여러 곳 있어요'],gap:['같은 건물에 약국이 이미 있어요','같은 건물에 약국이 없어요'],w1:['건물 주변에 병·의원이 적어요','건물 주변에 병·의원이 많아요'],c1:[x=>'건물 주변(300m)에 약국이 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','건물 주변에 약국이 적어요']};
+const REA={w:['근처에 약 처방과 관련이 큰 병·의원이 적어요','근처에 약 처방과 관련이 큰 병·의원이 많아요'],c:[x=>'100m 안에 약국이 이미 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','100m 안에 경쟁 약국이 적어요'],r:['사는 사람이 적은 동네예요','사는 사람이 많은 동네예요'],f:['낮에는 사람이 적은 편이에요','낮에 사람이 많이 모여요'],a:['어르신 비율이 낮은 동네예요','어르신이 많은 동네예요'],in:[x=>x.nM>0?'같은 건물 병·의원이 '+x.nM+'곳뿐이라 약 처방 수요가 크지 않아요':'같은 건물에 약 처방과 관련이 큰 병·의원이 없어요','같은 건물에 약 처방과 관련이 큰 병·의원이 여러 곳 있어요'],gap:['같은 건물에 약국이 이미 있어요','같은 건물에 약국이 없어요'],w1:['건물 주변에 병·의원이 적어요','건물 주변에 병·의원이 많아요'],c1:[x=>'건물 주변(100m)에 약국이 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','건물 주변에 약국이 적어요']};
 function reasons(c,W,ctx){const f=(x,i)=>{const r=REA[x[2]][i];return typeof r==='function'?r(ctx):r};
 const good=c.filter(x=>x[1]>=65).sort((a,b)=>W[b[2]]-W[a[2]]).slice(0,3).map(x=>f(x,1)),bad=c.filter(x=>x[1]<=35).sort((a,b)=>W[b[2]]-W[a[2]]).slice(0,3).map(x=>f(x,0));
 const ul=a=>a.length?'<ul>'+a.map(s=>'<li>'+s+'</li>').join('')+'</ul>':'<div class="mut">딱히 없어요</div>';
@@ -210,7 +211,7 @@ function card(who,v,arr,pool,cmpLabel,chips,ctx,c,W){const n=arr.length;if(n<5)r
 const T=TIERS.find(x=>p>=x[0])||TIERS[4],lines=pool?pool[T[1]]:T[3],s=Math.abs(Math.round(v*100+n))%lines.length;
 return'<div class="vd"><div class="vt"><span class="tag" style="background:'+T[2]+'">'+T[1]+'</span><b>'+who+' '+TT[T[1]]+'</b></div><div class="mut">'+cmpLabel+' '+fmt(n)+'곳 중 <b>'+fmt(k)+'곳</b>보다 점수가 높아요 <span>(이 자리 '+Math.round(v)+'점 · 평균 '+Math.round(mean)+'점)</span></div><div class="pbar" role="img" aria-label="'+n+'곳 중 '+k+'곳보다 높음"><i style="left:'+Math.max(2,Math.min(98,p)).toFixed(0)+'%"></i></div><div class="pend"><span>낮음</span><span>높음</span></div><p>'+lines[s]+'</p>'+reasons(c,W,ctx)+'<details class="dt"><summary>비교 대상 바꾸기</summary><div class="chips" style="margin-top:6px">'+chips+'</div></details></div>'}
 const ageIdx=dg=>{const s=dg.ag.slice(13).reduce((a,b)=>a+b,0)/dg.ag.reduce((a,b)=>a+b,0);return 100*Math.max(0,Math.min(1,(s-.10)/.20))};
-const ISC=(W,n)=>({w:100*(1-Math.exp(-W/4)),c:100*Math.max(0,1-n/6)});
+const ISC=(W,n)=>({w:100*(1-Math.exp(-W/6)),c:100*Math.max(0,1-n/6)});
 function pinComps(la,lo,ex){const dg=dongAt(la,lo);if(!dg)return null;const g=ring(la,lo);return Object.assign(ISC(g.W,Math.max(0,g.n-(ex?1:0))),{r:100*Math.min(1,dg.pop/35000),f:100*Math.min(1,dg.wd[12]/80000),a:ageIdx(dg),gu:dg.c.slice(0,4)})}
 function sampleComps(la,lo){const out=[],st=200,dla=st/111320,dlo=st/(111320*Math.cos(la*Math.PI/180));for(let i=-8;i<=8;i++)for(let j=-8;j<=8;j++){const a=la+i*dla,b=lo+j*dlo;if(dist(la,lo,a,b)>1500)continue;const c=pinComps(a,b);if(c)out.push(c)}return out}
 let GUC=null;
@@ -219,7 +220,7 @@ function guComps(){if(GUC)return GUC;GUC={};const g=D.grid;for(let r=0;r<g.rows.
 const GUN={'1141':'서대문구','1138':'은평구','1144':'마포구'};let CMP='ph',PHC=null,POPOPEN=false,SCOPEN=false,DETOPEN=false,BSCOPEN=false;
 const totOf=c=>{let w=0,s=0;for(const k of['w','c','r','f','a']){w+=WT[k];s+=c[k]*WT[k]}return w?s/w:0};
 function mkc(b,ex){const wIn=b.md.reduce((s,m)=>s+wOf(BT[m[2]]),0),nPh=Math.max(0,b.ph.length-(ex?1:0)),rg=ring(b.la,b.lo),W1=rg.W,P1=Math.max(0,rg.n-(ex?1:0)),dg=dongAt(b.la,b.lo);
-const c=[['건물 안 병·의원',100*(1-Math.exp(-wIn/2.5)),'in','같은 건물 병·의원의 처방 가중이 클수록 높아요'],['건물 안 약국 공백',nPh===0?100:nPh===1?25:0,'gap','같은 건물에 약국이 없을수록 높아요'],['주변 병·의원',100*(1-Math.exp(-W1/4)),'w1','100m 안은 100%, 100~300m는 40%로 쳐서 진료과 가중치를 곱해 더한 값이에요'],['주변 경쟁',100*Math.max(0,1-P1/6),'c1','100m 안 약국은 1곳, 100~300m는 0.4곳으로 세요 (6곳이면 0)']];
+const c=[['건물 안 병·의원',100*(1-Math.exp(-wIn/2.5)),'in','같은 건물 병·의원의 처방 가중이 클수록 높아요'],['건물 안 약국 공백',nPh===0?100:nPh===1?25:0,'gap','같은 건물에 약국이 없을수록 높아요'],['주변 병·의원',100*(1-Math.exp(-W1/6)),'w1','반경 100m 안 병·의원에 진료과 가중치를 곱해 더한 값(대학병원급은 300m까지, 100m 밖은 40%)이에요'],['주변 경쟁',100*Math.max(0,1-P1/6),'c1','반경 100m 안 약국 수예요 (6곳이면 0점)']];
 if(dg)c.push(['거주 수요',100*Math.min(1,dg.pop/35000),'r','동 주민등록 인구'],['낮 유동',100*Math.min(1,dg.wd[12]/80000),'f','동 평일 낮 12시 생활인구'],['고령 비율',ageIdx(dg),'a','동 65세 이상 비율']);return{c,dg,W1,P1}}
 function bcomp(b){const m=mkc(b,false);b.c=m.c;b.dg=m.dg;b.W1=m.W1;b.P1=m.P1}
 const btotC=c=>{let w=0,s=0;c.forEach(x=>{w+=WB[x[2]];s+=x[1]*WB[x[2]]});return w?s/w:0};
@@ -228,7 +229,7 @@ function btot(b){let w=0,s=0;b.c.forEach(x=>{w+=WB[x[2]];s+=x[1]*WB[x[2]]});retu
 function bnorm(){BIN.forEach(b=>b.tot=btot(b));let lo=1e9,hi=-1e9;BIN.forEach(b=>{lo=Math.min(lo,b.tot);hi=Math.max(hi,b.tot)});BIN.lo=lo;BIN.hi=hi}
 const bname=b=>b.nm||b.ad||'이름 없는 건물';
 function renderTop(){const el=$('top');if(!el)return;const t=BIN.slice().sort((a,b)=>b.tot-a.tot).slice(0,5);
-el.innerHTML=BIN.length?'<h2 style="margin-top:14px">이 근처에서 입점하기 좋은 건물 TOP 5</h2><div class="mut" style="margin-bottom:4px">찍은 곳에서 300m 안의 건물 '+BIN.length+'곳 중에서 건물 점수가 높은 순서예요. 지도의 주황색 네모가 건물이고, 눌러서 자세히 볼 수 있어요.</div><ul class="list">'+t.map(b=>'<li><button class="lk" data-i="'+BIN.indexOf(b)+'">'+esc(bname(b))+'</button><span class="mut">'+Math.round(b.tot)+'점 · 병·의원 '+b.md.length+'곳 · 약국 '+b.ph.length+'곳</span></li>').join('')+'</ul>':'<div class="mut" style="margin-top:12px">이 반경에는 건물 자료가 없어요.</div>'}
+el.innerHTML=BIN.length?'<h2 style="margin-top:14px">이 근처에서 입점하기 좋은 건물 TOP 5</h2><div class="mut" style="margin-bottom:4px">찍은 곳에서 500m 안의 건물 '+BIN.length+'곳 중에서 건물 점수가 높은 순서예요. 지도의 주황색 네모가 건물이고, 눌러서 자세히 볼 수 있어요.</div><ul class="list">'+t.map(b=>'<li><button class="lk" data-i="'+BIN.indexOf(b)+'">'+esc(bname(b))+'</button><span class="mut">'+Math.round(b.tot)+'점 · 병·의원 '+b.md.length+'곳 · 약국 '+b.ph.length+'곳</span></li>').join('')+'</ul>':'<div class="mut" style="margin-top:12px">이 반경에는 건물 자료가 없어요.</div>'}
 function flr(f){if(!f)return-99;if(/지하|B/i.test(f)){const m=f.match(/\d+/);return-(m?+m[0]:1)}const m=f.match(/\d+/);return m?+m[0]:-99}
 function selB(b,center){SB=b;if(center){CLAT=b.la;CLON=b.lo;Z=Math.max(Z,17)}renderB();draw();if(window.innerWidth<=820)$('bd').scrollIntoView({behavior:'smooth',block:'start'})}
 function renderB(){const b=SB,el=$('bd');if(!b){el.innerHTML='';return}const tot=btot(b),nM=b.md.length,nP=b.ph.length;
@@ -270,10 +271,10 @@ for(const p of b.ph){const pn=nrm(p[0]);if(pn.includes(k)){r.push({sc:3,la:b.la,
 r.sort((a,b)=>b.sc-a.sc);const seen=new Set();return r.filter(x=>{const id=x.t+x.s;if(seen.has(id))return false;seen.add(id);return true}).slice(0,6)}
 const KAKAO_KEY='edb22731996c445efdd1bcf89e849ee0';// 카카오 개발자 사이트의 JavaScript 키를 여기에 넣으면 카카오 장소 검색을 써요
 let KK=null;function loadKakao(){if(KK)return KK;KK=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+KAKAO_KEY+'&libraries=services&autoload=false';sc.onload=()=>kakao.maps.load(()=>ok());sc.onerror=()=>no(new Error('load'));document.head.appendChild(sc)});return KK}
-async function kakaoSearch(q){try{await loadKakao();const ps=new kakao.maps.services.Places();const run=(f,...a)=>new Promise(r=>f.call(ps,...a,(d,st)=>r(st==='OK'?d:[])));const opt={location:new kakao.maps.LatLng(37.5757,126.9134),sort:kakao.maps.services.SortBy.DISTANCE,size:8};let d=await run(ps.keywordSearch,q,opt);if(!d.length){const g=new kakao.maps.services.Geocoder();d=await new Promise(r=>g.addressSearch(q,(x,st)=>r(st==='OK'?x.map(i=>({place_name:i.address_name,address_name:'주소',y:i.y,x:i.x})):[])))}return d.map(i=>({sc:0,la:+i.y,lo:+i.x,t:i.place_name,s:i.road_address_name||i.address_name,web:1}))}catch(e){return[]}}
+let KERR='';async function kakaoSearch(q){try{await loadKakao();const ps=new kakao.maps.services.Places();const run=(f,...a)=>new Promise(r=>f.call(ps,...a,(d,st)=>r(st==='OK'?d:[])));const opt={location:new kakao.maps.LatLng(37.5757,126.9134),sort:kakao.maps.services.SortBy.DISTANCE,size:8};let d=await run(ps.keywordSearch,q,opt);if(!d.length)d=await run(ps.keywordSearch,q+' 아파트',opt);if(!d.length&&/\s/.test(q))d=await run(ps.keywordSearch,q.replace(/\s+/g,''),opt);if(!d.length){const g=new kakao.maps.services.Geocoder();d=await new Promise(r=>g.addressSearch(q,(x,st)=>r(st==='OK'?x.map(i=>({place_name:i.address_name,address_name:'주소',y:i.y,x:i.x})):[])))}return d.map(i=>({sc:0,la:+i.y,lo:+i.x,t:i.place_name,s:i.road_address_name||i.address_name,web:1}))}catch(e){KERR='카카오 검색을 불러오지 못했어요 (도메인 등록·키 확인)';return[]}}
 async function webSearch(q){if(KAKAO_KEY){const k=await kakaoSearch(q);if(k.length)return k}try{const one=async t=>{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=kr&accept-language=ko&viewbox=126.80,37.66,127.06,37.48&q='+encodeURIComponent(t));return await r.json()};let j=await one(/서울/.test(q)?q:'서울 '+q);if(!j.length&&!/서울/.test(q))j=await one(q);if(!j.length&&/역$/.test(q))j=await one(q+' 지하철');return j.map(x=>({sc:0,la:+x.lat,lo:+x.lon,t:x.display_name.split(',')[0],s:x.display_name.split(',').slice(1,4).join(',').trim(),web:1}))}catch(e){return[]}}
 let QT=0,QD=0;function showQ(list,msg){const b=$('qr');if(!list.length){b.innerHTML='<div class="mut" style="padding:10px 12px">'+esc(msg||'찾지 못했어요. 도로명 주소나 건물 이름으로 다시 해 보세요')+'</div>'}else{b.innerHTML=list.map((x,i)=>'<button data-i="'+i+'" style="display:block;width:100%;text-align:left;font:inherit;padding:9px 12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--fg);cursor:pointer"><b>'+esc(x.t)+'</b><div class="mut" style="font-size:12px">'+esc(x.s)+(x.web?' · 인터넷 검색':'')+'</div></button>').join('');b.querySelectorAll('button').forEach(bt=>bt.onclick=()=>{const x=list[+bt.dataset.i];clearTimeout(QD);QT++;b.style.display='none';$('q').value=x.t;goTo(x.la,x.lo)})}b.style.display='block'}
-async function runQ(){const q=$('q').value.trim();if(q.length<2){$('qr').style.display='none';return}const my=++QT;let l=localSearch(q);if(l.length<6){showQ(l,'인터넷에서 찾는 중…');const w=await webSearch(q);if(my!==QT)return;l=l.concat(w)}if(my===QT)showQ(l)}
+async function runQ(){const q=$('q').value.trim();if(q.length<2){$('qr').style.display='none';return}const my=++QT;let l=localSearch(q);if(l.length<6){showQ(l,'인터넷에서 찾는 중…');const w=await webSearch(q);if(my!==QT)return;l=l.concat(w)}if(my===QT)showQ(l,KERR||undefined)}
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runQ()}});$('q').addEventListener('input',()=>{const q=$('q').value.trim();clearTimeout(QD);if(q.length>=2){showQ(localSearch(q),'찾는 중…');QD=setTimeout(runQ,600)}else $('qr').style.display='none'});
 document.addEventListener('click',e=>{if(!$('sbox').contains(e.target))$('qr').style.display='none'});
 function twApply(){applyTW();GUC=null;PHC=null;PHB=null;if(SEL){analyze();draw()}else draw()}
