@@ -153,7 +153,7 @@ const pd=()=>{const a=[...ptr.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a
 cv.addEventListener('pointermove',e=>{const p=ptr.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
 if(ptr.size===2&&pinch0){Z=Math.max(12,Math.min(18.5,pinch0.z+Math.log2(pd()/pinch0.d)));draw();return}
 const[a,b]=px(CLAT,CLON,Z);[CLAT,CLON]=unpx(a-dx,b-dy,Z);clamp();draw()});
-function clamp(){CLAT=Math.max(37.53,Math.min(37.664,CLAT));CLON=Math.max(126.867,Math.min(126.975,CLON))}
+function clamp(){const bb=REGS.map(r=>r.b);let a=90,b=-90,c=180,d=-180;for(const x of bb){a=Math.min(a,x[0]);b=Math.max(b,x[2]);c=Math.min(c,x[1]);d=Math.max(d,x[3])}CLAT=Math.max(a,Math.min(b,CLAT));CLON=Math.max(c,Math.min(d,CLON))}
 const up=e=>{const p=ptr.get(e.pointerId);if(!p)return;const moved=Math.hypot(p.x-p.sx,p.y-p.sy);const was=ptr.size;ptr.delete(e.pointerId);if(was===1&&moved<7&&Date.now()-tapT<600){const r=cv.getBoundingClientRect(),X=e.clientX-r.left,Y=e.clientY-r.top;let pi=-1,pd=13;const[la0,lo0]=(()=>{const[a,b]=px(CLAT,CLON,Z);return unpx(a-W/2+X,b-H/2+Y,Z)})();for(const i of PHI){const[a,c]=scr(LAT[i],LON[i]);if(a<-20||c<-20||a>W+20||c>H+20)continue;const d=Math.hypot(a-X,c-Y);if(d<pd){pd=d;pi=i}}
 let pb=pi>=0?phBuilding(pi):null;if(pb){openB(pb);return}
 let bb=null,bd=17;BIN.forEach(b=>{const[a,c]=scr(b.la,b.lo),d=Math.hypot(a-X,c-Y);if(d<bd){bd=d;bb=b}});if(bb)openB(bb);else pick(X,Y)}if(ptr.size<2)pinch0=null;cv.style.cursor='grab'};
