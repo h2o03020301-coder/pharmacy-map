@@ -65,12 +65,13 @@ svg text{fill:var(--mut);font-size:10px}
 </style></head><body>
 <div class="app">
 <div id="mapwrap"><canvas id="map"></canvas><div class="hint" id="hint">지도를 눌러 보세요</div>
+<div id="regbar" style="position:absolute;left:10px;top:10px;display:flex;gap:6px;z-index:5"><button class="cmpb on" data-k="seoul" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">서울</button><button class="cmpb" data-k="daegu" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">대구·경산</button></div>
 <div class="zoom"><button id="loc" aria-label="내 위치" title="내 위치" style="font-size:18px">📍</button><button id="zi" aria-label="확대">+</button><button id="zo" aria-label="축소">−</button></div>
 <div class="legend"><span><i style="background:var(--ph)"></i>약국</span><span><i style="background:#d6336c;border-radius:2px"></i>대형병원</span><span><i style="background:var(--hs)"></i>약 처방과 관련이 큰 병·의원(가정)</span><span><i style="background:var(--gy)"></i>그 밖의 병·의원</span><span><i style="background:#e06a45;border-radius:2px"></i>건물 (진할수록 점수 높음)</span></div>
 <div class="attr">지도 © OpenStreetMap contributors</div></div>
 <aside>
 <h1>약국 입지 지도<small>서울 전체 · 대구 · 경산 · 공공데이터로 보는 주변 상권</small></h1>
-<div id="sbox" style="position:relative;margin:8px 0"><input id="q" type="search" placeholder="주소·건물·약국 이름 검색 (예: 가좌로 30, 신촌세브란스)" aria-label="주소 검색" style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)"><div id="qr" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:20;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin-top:4px;max-height:280px;overflow:auto;box-shadow:0 6px 18px rgba(0,0,0,.15)"></div></div>
+<div id="sbox" style="position:relative;margin:8px 0"><input id="q" type="search" placeholder="서울 안에서 검색 (예: 가좌로 30, 신촌세브란스)" aria-label="주소 검색" style="width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)"><div id="qr" style="display:none;position:absolute;left:0;right:0;top:100%;z-index:20;background:var(--bg);border:1px solid var(--line);border-radius:10px;margin-top:4px;max-height:280px;overflow:auto;box-shadow:0 6px 18px rgba(0,0,0,.15)"></div></div>
 <div class="mut" id="rad">분석 반경 100m (도보 약 1분) 고정</div>
 <div id="out" class="sec"><div class="mut">지도에서 보고 싶은 자리를 누르면 그 주변의 약국, 병·의원, 인구를 보여줘요.</div></div>
 <div id="bd"></div>
@@ -130,7 +131,7 @@ cx.fillStyle='rgba(255,120,140,.55)';cx.beginPath();cx.arc(-11,3.2,2.6,0,7);cx.a
 cx.lineWidth=1.9;cx.lineCap='round';cx.strokeStyle='#2a1d17';cx.beginPath();cx.arc(0,1.2,4.2,.15*Math.PI,.85*Math.PI);cx.stroke();
 cx.restore()}
 let VT=0,VTO=0;
-function render(){raf=0;{const nt=Date.now();if(nt-VT>800){VT=nt;ensureReg(CLAT,CLON)}else if(!VTO){VTO=setTimeout(()=>{VTO=0;VT=Date.now();ensureReg(CLAT,CLON)},900)}}cx.clearRect(0,0,W,H);
+function render(){raf=0;{const rr=regAt(CLAT,CLON);if(rr&&rr.k!==CURREG)setReg(rr.k,false)}{const nt=Date.now();if(nt-VT>800){VT=nt;ensureReg(CLAT,CLON)}else if(!VTO){VTO=setTimeout(()=>{VTO=0;VT=Date.now();ensureReg(CLAT,CLON)},900)}}cx.clearRect(0,0,W,H);
 const[cxp,cyp]=px(CLAT,CLON,Z),tz=Math.max(10,Math.min(19,Math.round(Z))),s=Math.pow(2,Z-tz),ts=256*s,n=Math.pow(2,tz);
 const[wx0,wy0]=[cxp-W/2,cyp-H/2];
 for(let ty=Math.floor(wy0/ts);ty<=Math.floor((wy0+H)/ts);ty++)for(let tx=Math.floor(wx0/ts);tx<=Math.floor((wx0+W)/ts);tx++){if(ty<0||ty>=n)continue;const t=tile(tz,((tx%n)+n)%n,ty);if(t.ok)cx.drawImage(t.img,tx*ts-wx0,ty*ts-wy0,ts+.5,ts+.5)}
@@ -283,23 +284,29 @@ CLAT=la;CLON=lo;Z=Math.max(Z,16.5);SEL=[la,lo];$('hint').style.display='none';an
 $('loc').onclick=()=>{if(!navigator.geolocation){toast('이 브라우저는 위치 기능을 지원하지 않아요');return}
 toast('내 위치를 찾는 중이에요…');navigator.geolocation.getCurrentPosition(p=>{goTo(p.coords.latitude,p.coords.longitude).then(ok=>{if(ok)toast('내 위치에 핀을 찍었어요')})},e=>toast(e.code===1?'위치 권한이 꺼져 있어요. 브라우저 설정에서 허용해 주세요':'위치를 가져오지 못했어요'),{enableHighAccuracy:true,timeout:10000})};
 const nrm=t=>String(t||'').toLowerCase().replace(/\s+/g,'').replace(/서울특별시|서울시/g,'').replace(/dmc/g,'디엠씨');
+let CURREG='seoul';
+const RCEN={seoul:[37.5665,126.978,14.5],daegu:[35.8714,128.6014,14.5]},RNAME={seoul:'서울',daegu:'대구'};
+const inReg=(la,lo)=>{const r=REGS.find(x=>x.k===CURREG);return la>=r.b[0]&&la<=r.b[2]&&lo>=r.b[1]&&lo<=r.b[3]};
+function setReg(k,jump){CURREG=k;document.querySelectorAll('#regbar button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('q').placeholder=(k==='seoul'?'서울':'대구·경산')+' 안에서 검색 ('+(k==='seoul'?'예: 가좌로 30, 신촌세브란스':'예: 동성로, 경산시청, 영남대')+')';$('qr').style.display='none';
+if(jump){const c=RCEN[k];CLAT=c[0];CLON=c[1];Z=c[2];SEL=null;BMODE=false;SB=null;BIN=[];last=null;$('out').innerHTML='<div class="mut">지도에서 보고 싶은 자리를 누르면 그 주변의 약국, 병·의원, 인구를 보여줘요.</div>';$('bd').innerHTML='';$('hint').style.display='';ensureReg(c[0],c[1]);draw()}}
+document.querySelectorAll('#regbar button').forEach(b=>b.onclick=()=>setReg(b.dataset.k,true));
 function localSearch(q){const k=nrm(q);if(k.length<2)return[];const r=[];
 for(const b of BL0){const a=nrm(b.ad),n=nrm(b.nm);let sc=0;if(n&&n.includes(k))sc=n===k?3:2;else if(a.includes(k))sc=1;if(sc)r.push({sc,la:b.la,lo:b.lo,t:(b.nm||b.ad.split(' 외')[0]),s:b.nm?b.ad.split(' 외')[0]:'주소'});
 for(const p of b.ph){const pn=nrm(p[0]);if(pn.includes(k)){r.push({sc:3,la:b.la,lo:b.lo,t:p[0],s:'약국 · '+b.ad.split(' 외')[0]})}}
 for(const m of b.md){const mn=nrm(m[0]);if(mn.includes(k)){r.push({sc:3,la:b.la,lo:b.lo,t:m[0],s:BT[m[2]]+' · '+b.ad.split(' 외')[0]})}}}
-r.sort((a,b)=>b.sc-a.sc);const seen=new Set();return r.filter(x=>{const id=x.t+x.s;if(seen.has(id))return false;seen.add(id);return true}).slice(0,6)}
+r.sort((a,b)=>b.sc-a.sc);const seen=new Set();return r.filter(x=>{if(!inReg(x.la,x.lo))return false;const id=x.t+x.s;if(seen.has(id))return false;seen.add(id);return true}).slice(0,6)}
 const KAKAO_KEY='edb22731996c445efdd1bcf89e849ee0';// 카카오 개발자 사이트의 JavaScript 키를 여기에 넣으면 카카오 장소 검색을 써요
 let KK=null;function loadKakao(){if(KK)return KK;KK=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey='+KAKAO_KEY+'&libraries=services&autoload=false';sc.onload=()=>kakao.maps.load(()=>ok());sc.onerror=()=>no(new Error('load'));document.head.appendChild(sc)});return KK}
 let KERR='';async function kakaoSearch(q){try{await loadKakao();const ps=new kakao.maps.services.Places(),SB=kakao.maps.services.SortBy;const run=(kw,o)=>new Promise(r=>ps.keywordSearch(kw,(d,st)=>r(st==='OK'?d:[]),o));
-const ctr=new kakao.maps.LatLng(CLAT||37.5757,CLON||126.9134),near={location:ctr,sort:SB.DISTANCE,size:10},acc={location:ctr,size:10};
+const rc=RCEN[CURREG],ctr=inReg(CLAT,CLON)?new kakao.maps.LatLng(CLAT,CLON):new kakao.maps.LatLng(rc[0],rc[1]),near={location:ctr,sort:SB.DISTANCE,size:10},acc={location:ctr,size:10};
 const base=q.replace(/\s+/g,'');const qs=[q,base];if(/^dmc/i.test(base)&&base.length>5)qs.push(base.slice(3));if(!/아파트$/.test(base))qs.push(base+'아파트');if(!/^dmc/i.test(base))qs.push('DMC'+base);
 const jobs=[];qs.forEach(k=>{jobs.push(run(k,near));jobs.push(run(k,acc))});
 let all=(await Promise.all(jobs)).flat();
 if(!all.length){const g=new kakao.maps.services.Geocoder();all=await new Promise(r=>g.addressSearch(q,(x,st)=>r(st==='OK'?x.map(i=>({place_name:i.address_name,address_name:'주소',y:i.y,x:i.x})):[])))}
 const k=nrm(q),seen=new Set(),out=[];
 all.forEach(i=>{const id=i.place_name+'|'+(i.road_address_name||i.address_name);if(seen.has(id))return;seen.add(id);const hit=nrm(i.place_name).includes(k);out.push({sc:hit?2:0,la:+i.y,lo:+i.x,t:i.place_name,s:i.road_address_name||i.address_name,web:1})});
-out.sort((a,b)=>b.sc-a.sc);return out.slice(0,8)}catch(e){KERR='카카오 검색 연결 실패 · 이 페이지 주소: '+location.origin+' · ① 카카오 콘솔 [카카오맵]→[사용 설정] ON ② JavaScript SDK 도메인이 위 주소와 똑같은지 확인';return[]}}
-async function webSearch(q){if(KAKAO_KEY){const k=await kakaoSearch(q);if(k.length)return k}try{const one=async t=>{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=kr&accept-language=ko&viewbox=126.80,37.66,127.06,37.48&q='+encodeURIComponent(t));return await r.json()};let j=await one(/서울/.test(q)?q:'서울 '+q);if(!j.length&&!/서울/.test(q))j=await one(q);if(!j.length&&/역$/.test(q))j=await one(q+' 지하철');return j.map(x=>({sc:0,la:+x.lat,lo:+x.lon,t:x.display_name.split(',')[0],s:x.display_name.split(',').slice(1,4).join(',').trim(),web:1}))}catch(e){return[]}}
+out.sort((a,b)=>b.sc-a.sc);return out.filter(x=>inReg(x.la,x.lo)).slice(0,8)}catch(e){KERR='카카오 검색 연결 실패 · 이 페이지 주소: '+location.origin+' · ① 카카오 콘솔 [카카오맵]→[사용 설정] ON ② JavaScript SDK 도메인이 위 주소와 똑같은지 확인';return[]}}
+async function webSearch(q){if(KAKAO_KEY){const k=await kakaoSearch(q);if(k.length)return k}try{const one=async t=>{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=kr&accept-language=ko&viewbox='+(()=>{const r=REGS.find(x=>x.k===CURREG).b;return r[1]+','+r[2]+','+r[3]+','+r[0]})()+'&q='+encodeURIComponent(t));return await r.json()};const RN=RNAME[CURREG];let j=await one(q.includes(RN)?q:RN+' '+q);if(!j.length)j=await one(q);if(!j.length&&/역$/.test(q))j=await one(q+' 지하철');return j.filter(x=>inReg(+x.lat,+x.lon)).map(x=>({sc:0,la:+x.lat,lo:+x.lon,t:x.display_name.split(',')[0],s:x.display_name.split(',').slice(1,4).join(',').trim(),web:1}))}catch(e){return[]}}
 let QT=0,QD=0;function showQ(list,msg){const b=$('qr');if(!list.length){b.innerHTML='<div class="mut" style="padding:10px 12px">'+esc(msg||'찾지 못했어요. 도로명 주소나 건물 이름으로 다시 해 보세요')+'</div>'}else{b.innerHTML=list.map((x,i)=>'<button data-i="'+i+'" style="display:block;width:100%;text-align:left;font:inherit;padding:9px 12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--fg);cursor:pointer"><b>'+esc(x.t)+'</b><div class="mut" style="font-size:12px">'+esc(x.s)+(x.web?' · 인터넷 검색':'')+'</div></button>').join('');b.querySelectorAll('button').forEach(bt=>bt.onclick=()=>{const x=list[+bt.dataset.i];clearTimeout(QD);QT++;b.style.display='none';$('q').value=x.t;goTo(x.la,x.lo)})}b.style.display='block'}
 async function runQ(){const q=$('q').value.trim();if(q.length<2){$('qr').style.display='none';return}const my=++QT;let l=localSearch(q);if(l.length<6){showQ(l,'인터넷에서 찾는 중…');const w=await webSearch(q);if(my!==QT)return;l=l.concat(w)}if(my===QT)showQ(l,KERR||undefined)}
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runQ()}});$('q').addEventListener('input',()=>{const q=$('q').value.trim();clearTimeout(QD);if(q.length>=2){showQ(localSearch(q),'찾는 중…');QD=setTimeout(runQ,600)}else $('qr').style.display='none'});
