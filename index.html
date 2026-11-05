@@ -62,11 +62,16 @@ button.cmpb{font:inherit;font-size:13px;padding:5px 12px;border-radius:999px;bor
 button.cmpb.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 button.lk{font:inherit;font-size:14px;background:none;border:0;padding:0;color:var(--hs);text-align:left;cursor:pointer;text-decoration:underline}
 svg text{fill:var(--mut);font-size:10px}
+body:not(.owner) #scdt,body:not(.owner) #bdt,body:not(.owner) #twbox,body:not(.owner) #rad,body:not(.owner) .meth{display:none!important}
+.owneronly{display:none}body.owner .owneronly{display:inline-block}
+#cmbox textarea,#cmbox input,#stm input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--fg);font:inherit;font-size:14px}
+#stm table{width:100%;border-collapse:collapse;font-size:13px}#stm td,#stm th{padding:3px 6px;border-bottom:1px solid var(--line);text-align:left}
 </style></head><body>
 <div class="app">
 <div id="mapwrap"><canvas id="map"></canvas><div class="hint" id="hint">지도를 눌러 보세요</div>
-<div id="modebar" style="position:absolute;left:10px;top:50px;display:flex;gap:6px;z-index:5"><button class="cmpb on" data-m="rx" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">💊 처방 중심</button><button class="cmpb" data-m="otc" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">🧴 OTC·뷰티</button></div>
-<div id="modal" style="position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:var(--bg);color:var(--fg);border-radius:16px;padding:20px;max-width:420px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.3)"><div style="font-size:18px;font-weight:700;margin-bottom:4px">어떤 약국을 열고 싶으세요?</div><div class="mut" style="margin-bottom:14px">고른 기준으로 입지 점수를 계산해요. 위쪽 버튼으로 언제든 바꿀 수 있어요.</div><div style="display:grid;gap:10px"><button class="cmpb" data-m="rx" style="padding:14px;text-align:left;border-radius:12px"><b>💊 처방 중심 약국</b><br><span class="mut">병원·의원 근처, 처방전 수요가 핵심</span></button><button class="cmpb" data-m="otc" style="padding:14px;text-align:left;border-radius:12px"><b>🧴 일반의약품·뷰티 약국</b><br><span class="mut">유동인구와 젊은 층, 지나가다 들르는 수요가 핵심</span></button></div></div></div>
+<div id="modebar" style="position:absolute;left:10px;top:50px;display:flex;gap:6px;z-index:5"><button class="cmpb on" data-m="rx" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">💊 처방</button><button class="cmpb" data-m="home" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">🏠 동네·OTC</button><button class="cmpb" data-m="beauty" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">🧴 뷰티</button></div>
+<div id="stm" style="position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:12px"><div style="background:var(--bg);color:var(--fg);border-radius:14px;padding:16px;max-width:560px;width:100%;max-height:88vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:16px">📊 이용 통계</b><button class="cmpb" id="stx">닫기</button></div><div id="stb" style="margin-top:8px"></div></div></div>
+<div id="modal" style="position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:var(--bg);color:var(--fg);border-radius:16px;padding:20px;max-width:420px;width:100%;box-shadow:0 8px 30px rgba(0,0,0,.3)"><div style="font-size:18px;font-weight:700;margin-bottom:4px">어떤 약국을 열고 싶으세요?</div><div class="mut" style="margin-bottom:14px">고른 기준으로 입지 점수를 계산해요. 위쪽 버튼으로 언제든 바꿀 수 있어요.</div><div style="display:grid;gap:10px"><button class="cmpb" data-m="rx" style="padding:14px;text-align:left;border-radius:12px"><b>💊 처방 중심 약국</b><br><span class="mut">병원·의원 근처, 처방전 수요가 핵심</span></button><button class="cmpb" data-m="home" style="padding:14px;text-align:left;border-radius:12px"><b>🏠 동네·일반의약품 약국</b><br><span class="mut">주민이 많은 동네, 감기약·영양제 단골 수요가 핵심</span></button><button class="cmpb" data-m="beauty" style="padding:14px;text-align:left;border-radius:12px"><b>🧴 뷰티 약국</b><br><span class="mut">유동인구와 20~30대, 지나가다 들르는 수요가 핵심</span></button></div></div></div>
 <div id="regbar" style="position:absolute;left:10px;top:10px;display:flex;gap:6px;z-index:5"><button class="cmpb on" data-k="seoul" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">서울</button><button class="cmpb" data-k="daegu" style="box-shadow:0 1px 4px rgba(0,0,0,.2)">대구·경산</button></div>
 <div class="zoom"><button id="loc" aria-label="내 위치" title="내 위치" style="font-size:18px">📍</button><button id="zi" aria-label="확대">+</button><button id="zo" aria-label="축소">−</button></div>
 <div class="legend"><span><i style="background:var(--ph)"></i>약국</span><span><i style="background:#d6336c;border-radius:2px"></i>대형병원</span><span><i style="background:var(--hs)"></i>약 처방과 관련이 큰 병·의원(가정)</span><span><i style="background:var(--gy)"></i>그 밖의 병·의원</span><span><i style="background:#e06a45;border-radius:2px"></i>건물 (진할수록 점수 높음)</span></div>
@@ -78,7 +83,11 @@ svg text{fill:var(--mut);font-size:10px}
 <div id="out" class="sec"><div class="mut">지도에서 보고 싶은 자리를 누르면 그 주변의 약국, 병·의원, 인구를 보여줘요.</div></div>
 <div id="bd"></div>
 <details class="sec" id="twbox"><summary><b>진료과 가중치</b> <span class="mut">(처방전이 약국으로 얼마나 나오는지에 대한 가정)</span></summary><div class="warn" style="margin-top:6px">진료과별 값은 제가 정한 가정이에요. 참고로 2009년 심평원 자료를 인용한 기사(데일리팜, 2010)에서 의원 외래처방률이 소아청소년과 약 96%, 이비인후과 약 91%, 내과 약 90%, 정형외과 약 50%, 성형외과 약 38%, 정신과 약 13%였어요. 오래된 자료이고 안과·피부과·치과 수치는 확인하지 못했어요.</div><div id="twl" style="display:grid;gap:4px;margin-top:8px"></div><button class="lk" id="twreset" style="margin-top:8px">기본값으로 되돌리기</button></details>
-<div class="warn">자료 기준: 상가(상권)정보 2026년 9월, 심평원 요양기관 2025년 12월(상가정보에 없는 병·의원·약국 보충), 서울 생활인구 2026년 7월(내국인), 주민등록 인구 2026년 10월. 연령 구성은 서대문·은평·마포구만 있고 생활인구는 서울만 있어서, 자료가 없는 곳은 그 항목을 빼고 계산해요. 동 경계는 상가 위치로 근사한 값이라 경계 근처에서는 오차가 있어요. 참고 점수는 가정에 따른 계산이고 실제 개국 판단용이 아니에요.</div>
+<div class="warn meth">자료 기준: 상가(상권)정보 2026년 9월, 심평원 요양기관 2025년 12월(상가정보에 없는 병·의원·약국 보충), 서울 생활인구 2026년 7월(내국인), 주민등록 인구 2026년 10월. 연령 구성은 서대문·은평·마포구만 있고 생활인구는 서울만 있어서, 자료가 없는 곳은 그 항목을 빼고 계산해요. 동 경계는 상가 위치로 근사한 값이라 경계 근처에서는 오차가 있어요. 참고 점수는 가정에 따른 계산이고 실제 개국 판단용이 아니에요.</div>
+<details class="sec" id="cmbox" style="display:none"><summary><b>💬 의견 남기기</b> <span class="mut">(버그, 아쉬운 점, 아이디어 아무거나)</span></summary><div style="display:grid;gap:6px;margin-top:8px"><textarea id="cmtx" rows="4" maxlength="500" placeholder="자유롭게 남겨 주세요 (최대 500자)"></textarea><input id="cmnk" maxlength="20" placeholder="닉네임 (선택)"><div style="display:flex;gap:8px;align-items:center"><button class="cmpb" id="cmsend">보내기</button><span class="mut" id="cmst"></span></div></div></details>
+<div style="margin-top:10px"><button class="cmpb owneronly" id="stbtn">📊 이용 통계 보기</button></div>
+<div class="mut" id="lognote" style="display:none;font-size:12px;line-height:1.5;margin-top:8px">이용 통계(임의로 만든 익명 번호, 눌러 본 동네·모드·횟수)와 남기신 의견이 저장돼요. 이름이나 정확한 위치는 모으지 않아요.</div>
+<div class="mut" style="margin:18px 0 8px;font-size:12px;line-height:1.5">재미로 만든 참고용 지도예요. 실제 입점 판단의 근거로 쓰지 마세요. 점수 가중치와 기준은 제가 정한 가정이고, 심평원 자료는 2025년 12월 기준이라 최근 개원은 빠져 있을 수 있어요.<br>자료 출처: 소상공인시장진흥공단 상가(상권)정보(2026.09), 건강보험심사평가원 요양기관 개설현황(2025.12), 행정안전부 주민등록 인구·연령, 서울 열린데이터광장 생활인구, 지도 © OpenStreetMap contributors. 대구·경산의 낮 유동은 상가 밀집도로 추정한 값이에요.</div>
 </aside></div>
 <script>
 const D={types:[],names:[]};
@@ -164,7 +173,7 @@ cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,e.
 function zoomAt(x,y,dz){const[a,b]=px(CLAT,CLON,Z),[la,lo]=unpx(a-W/2+x,b-H/2+y,Z);Z=Math.max(12,Math.min(18.5,Z+dz));const[a2,b2]=px(la,lo,Z);[CLAT,CLON]=unpx(a2-x+W/2,b2-y+H/2,Z);clamp();draw()}
 $('zi').onclick=()=>zoomAt(W/2,H/2,1);$('zo').onclick=()=>zoomAt(W/2,H/2,-1);
 const scr=(la,lo)=>{const[a,b]=px(la,lo,Z),[c,d]=px(CLAT,CLON,Z);return[a-c+W/2,b-d+H/2]};
-function pick(x,y){const[a,b]=px(CLAT,CLON,Z),[la,lo]=unpx(a-W/2+x,b-H/2+y,Z);const rg=regAt(la,lo);if(!rg){toast('아직 데이터가 없는 지역이에요 (서울·대구·경산만 있어요)');return}if(!LOADED[rg.k]){ensureReg(la,lo).then(ok=>{if(ok)pick(x,y)});return}SEL=[la,lo];$('hint').style.display='none';analyze();draw()}
+function pick(x,y){const[a,b]=px(CLAT,CLON,Z),[la,lo]=unpx(a-W/2+x,b-H/2+y,Z);const rg=regAt(la,lo);if(!rg){toast('아직 데이터가 없는 지역이에요 (서울·대구·경산만 있어요)');return}if(!LOADED[rg.k]){ensureReg(la,lo).then(ok=>{if(ok)pick(x,y)});return}SEL=[la,lo];LOGD('pin',la,lo);$('hint').style.display='none';analyze();draw()}
 // ---- 분석
 const WT={w:45,c:35,r:12,f:8,a:10},WT0=Object.assign({},WT);let SHOWP=false,SHOWB=false;let last=null;
 function dongAt(lat,lon){for(const g of GRIDS){const r=Math.floor((g.y1-lat)/g.dy),c=Math.floor((lon-g.x0)/g.dx);if(r<0||c<0||r>=g.nr||c>=g.nc)continue;const ch=g.rows[r].substr(c*2,2);if(ch==='..')continue;return g.dongs[B62.indexOf(ch[0])*62+B62.indexOf(ch[1])]}return null}
@@ -200,12 +209,12 @@ s+='<polyline fill="none" stroke="#8a96a3" stroke-width="2" points="'+d.we.map((
 function score(){if(!last)return;const{dg}=last,c=[];
 const rgp=last.rg||{W:0,n:0};c.push(['처방 수요',100*(1-Math.exp(-rgp.W/6)),'w','반경 100m 안 병·의원에 진료과 가중치를 곱해 더한 값(대학병원급은 300m까지, 100m 밖은 40%)이에요']);
 c.push(['경쟁 정도',100*Math.max(0,1-rgp.n/6),'c','반경 100m 안 약국 수예요 (6곳이면 0점)']);
-if(dg){c.push(['거주 수요',100*Math.min(1,dg.pop/35000),'r','동 주민등록 인구 (3.5만 명이면 100)']);if(FL(dg)!=null)c.push([dg.wd?'낮 유동':'낮 유동(추정)',100*Math.min(1,FL(dg)/80000),'f',dg.wd?'평일 낮 12시 생활인구 (8만 명이면 100)':'상가 밀집도로 추정한 평일 낮 유동이에요 (서울 실제 생활인구와 맞춰 본 값, 8만 명이면 100)']);if(dg.ag)c.push([ALAB(),ageIdx(dg),'a',MODE==='otc'?'동 20~39세 비율 (20%면 0, 45%면 100). 젊은 층이 많을수록 뷰티·일반의약품 수요가 많다는 가정이에요':'동 65세 이상 비율 (10%면 0, 30%면 100). 만성질환 처방이 많다는 가정이에요'])}
+if(dg){c.push(['거주 수요',100*Math.min(1,dg.pop/35000),'r','동 주민등록 인구 (3.5만 명이면 100)']);if(FL(dg)!=null)c.push([dg.wd?'낮 유동':'낮 유동(추정)',100*Math.min(1,FL(dg)/80000),'f',dg.wd?'평일 낮 12시 생활인구 (8만 명이면 100)':'상가 밀집도로 추정한 평일 낮 유동이에요 (서울 실제 생활인구와 맞춰 본 값, 8만 명이면 100)']);if(dg.ag)c.push([ALAB(),ageIdx(dg),'a',MODE==='beauty'?'동 20~39세 비율 (20%면 0, 45%면 100). 젊은 층이 많을수록 뷰티·일반의약품 수요가 많다는 가정이에요':'동 65세 이상 비율 (10%면 0, 30%면 100). 만성질환 처방이 많다는 가정이에요'])}
 let ws=0,sum=0;c.forEach(x=>{ws+=WT[x[2]];sum+=x[1]*WT[x[2]]});const tot=ws?sum/ws:0;let h='';
 if(dg&&last.samp&&last.samp.length>=5){const gu=dg.c.slice(0,4),gn=dg.n.split(' ')[0],have=new Set(c.map(x=>x[2]));let arr,lab;
 if(CMP==='gu'){arr=guComps(gu);lab=gn+' 안 자리'}else if(CMP==='near'){arr=last.samp;lab='이 근처 1.5km 안 자리'}else{arr=phComps(dg.reg);lab='이미 문 연 약국 자리'}
 const chips=[['ph','문 연 약국 자리와'],['near','이 근처 1.5km와'],['gu',gn+' 전체와']].map(([m,l])=>'<button class="cmpb'+(CMP===m?' on':'')+'" data-m="'+m+'">'+l+'</button>').join('');
-h+=card('여기 입지는',tot,arr.map(x=>totOf(x,have)),null,lab,chips,{n:rgp.n},c,WT)+(CMP==='ph'?'<div class="warn">이미 영업 중인 약국 자리(그 약국은 빼고 계산)와 견준 값이에요. 영업 중이라고 장사가 잘되는 건 아니라서 참고로만 보세요.</div>':'')}
+h+=card('여기 입지는',tot,arr.map(x=>totOf(x,have)),null,lab,chips,{n:rgp.n},c,WT)+(CMP==='ph'?'<div class="warn meth">이미 영업 중인 약국 자리(그 약국은 빼고 계산)와 견준 값이에요. 영업 중이라고 장사가 잘되는 건 아니라서 참고로만 보세요.</div>':'')}
 else h+='<div class="warn">이 자리는 인구 자료가 있는 동 밖이라 평가를 하지 않아요.</div>';
 const chg=JSON.stringify(WT)!==JSON.stringify(WT0);
 h+='<details class="dt" id="scdt"'+(SCOPEN?' open':'')+'><summary>점수가 어떻게 나왔어요? (항목별 점수)</summary><div class="score" style="margin-top:6px"><b>'+Math.round(tot)+'</b><span class="mut">/ 100 · 아래 항목을 가중치대로 합친 점수예요</span></div>';
@@ -222,9 +231,9 @@ const TIERS=[
 [0,'최악','#c8402f',['여기서 개국하면 약보다 파리를 조제하게 돼요. 🪰','이 자리는 약사가 아니라 마음 수련이 필요해요. 도망가세요. 🏃','사주로 치면 삼재. 다른 자리를 짚어 보세요. 😱','권리금보다 손실이 먼저 오는 자리예요. 💸']]];
 const BTIERS={'최고':['건물 통째로 입점 1순위. 엘리베이터에서 환자가 알아서 내려와요. 🛗','같은 건물 처방전이 줄을 서는 자리예요. 📜'],'꽤 좋음':['건물 단위로 보면 꽤 괜찮은 입점지예요. 👍','로비 한 칸만 있어도 해볼 만해요. 🚪'],'그냥 그래요':['평범한 건물이에요. 간판 크기로 승부를 봐야 해요. 🪧','건물 이름만 멋있고 점수는 무난해요. 🏷️'],'별로':['이 건물은 약보다 사무실이 어울려요. 🗄️','1층 자리가 나도 한 번 더 생각해 보세요. 🤔'],'최악':['이 건물에서 개국하면 파리만 처방돼요. 🪰','입점하는 순간 월세가 눈에 밟혀요. 💸']};
 const TT={'최고':'최고예요','꽤 좋음':'괜찮아요','그냥 그래요':'평범해요','별로':'별로예요','최악':'최악이에요'};
-const REA={w:['근처에 약 처방과 관련이 큰 병·의원이 적어요','근처에 약 처방과 관련이 큰 병·의원이 많아요'],c:[x=>'100m 안에 약국이 이미 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','100m 안에 경쟁 약국이 적어요'],r:['사는 사람이 적은 동네예요','사는 사람이 많은 동네예요'],f:['낮에는 사람이 적은 편이에요','낮에 사람이 많이 모여요'],a:['어르신 비율이 낮은 동네예요','어르신이 많은 동네예요'],in:[x=>x.nM>0?'같은 건물 병·의원이 '+x.nM+'곳뿐이라 약 처방 수요가 크지 않아요':'같은 건물에 약 처방과 관련이 큰 병·의원이 없어요','같은 건물에 약 처방과 관련이 큰 병·의원이 여러 곳 있어요'],gap:['같은 건물에 약국이 이미 있어요','같은 건물에 약국이 없어요'],w1:['건물 주변에 병·의원이 적어요','건물 주변에 병·의원이 많아요'],c1:[x=>'건물 주변(100m)에 약국이 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','건물 주변에 약국이 적어요']};
+const REA={w:['근처에 약 처방과 관련이 큰 병·의원이 적어요','근처에 약 처방과 관련이 큰 병·의원이 많아요'],c:[x=>'100m 안에 약국이 이미 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','100m 안에 경쟁 약국이 적어요'],r:['사는 사람이 적은 동네예요','사는 사람이 많은 동네예요'],f:['낮에는 사람이 적은 편이에요','낮에 사람이 많이 모여요'],a:[()=>MODE==='beauty'?'20~30대 젊은 층이 적은 동네예요':'어르신 비율이 낮은 동네예요',()=>MODE==='beauty'?'20~30대 젊은 층이 많은 동네예요':'어르신이 많은 동네예요'],in:[x=>x.nM>0?'같은 건물 병·의원이 '+x.nM+'곳뿐이라 약 처방 수요가 크지 않아요':'같은 건물에 약 처방과 관련이 큰 병·의원이 없어요','같은 건물에 약 처방과 관련이 큰 병·의원이 여러 곳 있어요'],gap:['같은 건물에 약국이 이미 있어요','같은 건물에 약국이 없어요'],w1:['건물 주변에 병·의원이 적어요','건물 주변에 병·의원이 많아요'],c1:[x=>'건물 주변(100m)에 약국이 '+Math.max(1,Math.round(x.n))+'곳쯤 있어요','건물 주변에 약국이 적어요']};
 function reasons(c,W,ctx){const f=(x,i)=>{const r=REA[x[2]][i];return typeof r==='function'?r(ctx):r};
-const good=c.filter(x=>x[1]>=65).sort((a,b)=>W[b[2]]-W[a[2]]).slice(0,3).map(x=>f(x,1)),bad=c.filter(x=>x[1]<=35).sort((a,b)=>W[b[2]]-W[a[2]]).slice(0,3).map(x=>f(x,0));
+const SK=MODE==='beauty'?['w','in','w1']:MODE==='home'?['in','w1']:[];c=c.filter(x=>!SK.includes(x[2]));const good=c.filter(x=>x[1]>=65).sort((a,b)=>W[b[2]]-W[a[2]]).slice(0,3).map(x=>f(x,1)),bad=c.filter(x=>x[1]<=35).sort((a,b)=>W[b[2]]-W[a[2]]).slice(0,3).map(x=>f(x,0));
 const ul=a=>a.length?'<ul>'+a.map(s=>'<li>'+s+'</li>').join('')+'</ul>':'<div class="mut">딱히 없어요</div>';
 return'<div class="rs"><div><b>👍 좋은 점</b>'+ul(good)+'</div><div><b>👎 아쉬운 점</b>'+ul(bad)+'</div></div>'}
 function card(who,v,arr,pool,cmpLabel,chips,ctx,c,W){const n=arr.length;if(n<5)return'';const mean=arr.reduce((a,b)=>a+b,0)/n,lower=arr.filter(x=>x<v).length+arr.filter(x=>x===v).length/2,p=lower/n*100,k=Math.round(lower);
@@ -232,11 +241,11 @@ const T=TIERS.find(x=>p>=x[0])||TIERS[4],lines=pool?pool[T[1]]:T[3],s=Math.abs(M
 return'<div class="vd"><div class="vt"><span class="tag" style="background:'+T[2]+'">'+T[1]+'</span><b>'+who+' '+TT[T[1]]+'</b></div><div class="mut">'+cmpLabel+' '+fmt(n)+'곳 중 <b>'+fmt(k)+'곳</b>보다 점수가 높아요 <span>(이 자리 '+Math.round(v)+'점 · 평균 '+Math.round(mean)+'점)</span></div><div class="pbar" role="img" aria-label="'+n+'곳 중 '+k+'곳보다 높음"><i style="left:'+Math.max(2,Math.min(98,p)).toFixed(0)+'%"></i></div><div class="pend"><span>낮음</span><span>높음</span></div><p>'+lines[s]+'</p>'+reasons(c,W,ctx)+'<details class="dt"><summary>비교 대상 바꾸기</summary><div class="chips" style="margin-top:6px">'+chips+'</div></details></div>'}
 const FL=dg=>dg.wd?dg.wd[12]:(dg.fp!=null?dg.fp:null);
 let MODE='rx';
-const PRE={rx:{WT:{w:45,c:35,r:12,f:8,a:10},WB:{in:45,gap:35,w1:8,c1:5,r:4,f:3,a:3}},otc:{WT:{w:5,c:25,r:15,f:35,a:20},WB:{in:3,gap:20,w1:3,c1:20,r:12,f:30,a:12}}};
-const ageIdx=dg=>{const t=dg.ag.reduce((a,b)=>a+b,0);if(MODE==='otc'){const y=dg.ag.slice(4,8).reduce((a,b)=>a+b,0)/t;return 100*Math.max(0,Math.min(1,(y-.20)/.25))}const s=dg.ag.slice(13).reduce((a,b)=>a+b,0)/t;return 100*Math.max(0,Math.min(1,(s-.10)/.20))};
-const ALAB=()=>MODE==='otc'?'2030 비율':'고령 비율';
-function setMode(m){MODE=m;Object.assign(WT0,PRE[m].WT);Object.assign(WT,WT0);Object.assign(WB0,PRE[m].WB);Object.assign(WB,WB0);PHC=null;GUC=null;PHB=null;if(BIN.length){BIN.forEach(bcomp);bnorm()}
-document.querySelectorAll('#modebar button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));const md=$('modal');if(md)md.style.display='none';if(last)score();if(SB)renderB();toast(m==='otc'?'일반의약품·뷰티 기준으로 보고 있어요':'처방 중심 기준으로 보고 있어요')}
+const PRE={rx:{WT:{w:45,c:35,r:12,f:8,a:10},WB:{in:45,gap:35,w1:8,c1:5,r:4,f:3,a:3}},home:{WT:{w:15,c:30,r:30,f:10,a:15},WB:{in:10,gap:25,w1:8,c1:17,r:25,f:5,a:10}},beauty:{WT:{w:5,c:25,r:15,f:35,a:20},WB:{in:3,gap:20,w1:3,c1:20,r:12,f:30,a:12}}};
+const ageIdx=dg=>{const t=dg.ag.reduce((a,b)=>a+b,0);if(MODE==='beauty'){const y=dg.ag.slice(4,8).reduce((a,b)=>a+b,0)/t;return 100*Math.max(0,Math.min(1,(y-.20)/.25))}const s=dg.ag.slice(13).reduce((a,b)=>a+b,0)/t;return 100*Math.max(0,Math.min(1,(s-.10)/.20))};
+const ALAB=()=>MODE==='beauty'?'2030 비율':'고령 비율';
+function setMode(m){LOGE('mode',{m});MODE=m;Object.assign(WT0,PRE[m].WT);Object.assign(WT,WT0);Object.assign(WB0,PRE[m].WB);Object.assign(WB,WB0);PHC=null;GUC=null;PHB=null;if(BIN.length){BIN.forEach(bcomp);bnorm()}
+document.querySelectorAll('#modebar button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));const md=$('modal');if(md)md.style.display='none';if(last)score();if(SB)renderB();toast(m==='beauty'?'뷰티 약국 기준으로 보고 있어요':m==='home'?'동네·일반의약품 약국 기준으로 보고 있어요':'처방 중심 기준으로 보고 있어요')}
 const ISC=(W,n)=>({w:100*(1-Math.exp(-W/6)),c:100*Math.max(0,1-n/6)});
 function pinComps(la,lo,ex){const dg=dongAt(la,lo);if(!dg)return null;const g=ring(la,lo);return Object.assign(ISC(g.W,Math.max(0,g.n-(ex?1:0))),{r:100*Math.min(1,dg.pop/35000),f:FL(dg)!=null?100*Math.min(1,FL(dg)/80000):null,a:dg.ag?ageIdx(dg):null,gu:dg.c.slice(0,4),reg:dg.reg})}
 function sampleComps(la,lo){const out=[],st=200,dla=st/111320,dlo=st/(111320*Math.cos(la*Math.PI/180));for(let i=-8;i<=8;i++)for(let j=-8;j<=8;j++){const a=la+i*dla,b=lo+j*dlo;if(dist(la,lo,a,b)>1500)continue;const c=pinComps(a,b);if(c)out.push(c)}return out}
@@ -250,7 +259,7 @@ function adjPh(b){if(!BPHI||BPHN!==BL0.length){BPHI=new Map();BPHN=BL0.length;fo
 const ci=Math.floor(b.la/.0005),cj=Math.floor(b.lo/.0006);let k=0;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const a=BPHI.get((ci+i)+','+(cj+j));if(a)for(const x of a)if(x!==b&&dist(b.la,b.lo,x.la,x.lo)<=ADJ)k++}return k}
 function mkc(b,ex){const wIn=b.md.reduce((s,m)=>s+wOf(BT[m[2]]),0),nPh=Math.max(0,b.ph.length-(ex?1:0)),nAdj=nPh===0?adjPh(b):0,rg=ring(b.la,b.lo),W1=rg.W,P1=Math.max(0,rg.n-(ex?1:0)),dg=dongAt(b.la,b.lo);
 const c=[['건물 안 병·의원',100*(1-Math.exp(-wIn/2.5)),'in','같은 건물 병·의원의 처방 가중이 클수록 높아요'],['건물 안 약국 공백',nPh===0?100*Math.pow(1-ADJP,0)*(nAdj?Math.pow(1-ADJP,nAdj):1):nPh===1?25:0,'gap',nAdj?'같은 건물엔 약국이 없지만, '+ADJ+'m 안 옆 건물에 약국이 '+nAdj+'곳 있어요. 이미 거래가 이어져 있을 가능성을 '+Math.round((1-Math.pow(1-ADJP,nAdj))*100)+'%로 보고 깎았어요':'같은 건물과 '+ADJ+'m 안 옆 건물에 약국이 없을수록 높아요 (옆 건물에 있으면 이미 연결됐을 가능성 70%로 계산)'],['주변 병·의원',100*(1-Math.exp(-W1/6)),'w1','반경 100m 안 병·의원에 진료과 가중치를 곱해 더한 값(대학병원급은 300m까지, 100m 밖은 40%)이에요'],['주변 경쟁',100*Math.max(0,1-P1/6),'c1','반경 100m 안 약국 수예요 (6곳이면 0점)']];
-if(dg){c.push(['거주 수요',100*Math.min(1,dg.pop/35000),'r','동 주민등록 인구']);if(FL(dg)!=null)c.push([dg.wd?'낮 유동':'낮 유동(추정)',100*Math.min(1,FL(dg)/80000),'f',dg.wd?'동 평일 낮 12시 생활인구':'동 상가 밀집도로 추정한 낮 유동']);if(dg.ag)c.push([ALAB(),ageIdx(dg),'a',MODE==='otc'?'동 20~39세 비율 (20%면 0, 45%면 100). 젊은 층이 많을수록 뷰티·일반의약품 수요가 많다는 가정이에요':'동 65세 이상 비율'])};return{c,dg,W1,P1}}
+if(dg){c.push(['거주 수요',100*Math.min(1,dg.pop/35000),'r','동 주민등록 인구']);if(FL(dg)!=null)c.push([dg.wd?'낮 유동':'낮 유동(추정)',100*Math.min(1,FL(dg)/80000),'f',dg.wd?'동 평일 낮 12시 생활인구':'동 상가 밀집도로 추정한 낮 유동']);if(dg.ag)c.push([ALAB(),ageIdx(dg),'a',MODE==='beauty'?'동 20~39세 비율 (20%면 0, 45%면 100). 젊은 층이 많을수록 뷰티·일반의약품 수요가 많다는 가정이에요':'동 65세 이상 비율'])};return{c,dg,W1,P1}}
 function bcomp(b){const m=mkc(b,false);b.c=m.c;b.dg=m.dg;b.W1=m.W1;b.P1=m.P1}
 const btotC=(c,have)=>{let w=0,s=0;c.forEach(x=>{if(have&&!have.has(x[2]))return;w+=WB[x[2]];s+=x[1]*WB[x[2]]});return w?s/w:0};
 let PHB=null;function phBld(reg){PHB=PHB||{};if(!PHB[reg])PHB[reg]=BL.filter(b=>b.ph.length&&((dongAt(b.la,b.lo)||{}).reg===reg)).map(b=>mkc(b,true).c);return PHB[reg]}
@@ -262,7 +271,7 @@ el.innerHTML=BIN.length?'<h2 style="margin-top:14px">이 근처에서 입점하�
 function flr(f){if(!f)return-99;if(/지하|B/i.test(f)){const m=f.match(/\d+/);return-(m?+m[0]:1)}const m=f.match(/\d+/);return m?+m[0]:-99}
 let BMODE=false;
 function phBuilding(i){const la=LAT[i],lo=LON[i],nm=NM[i],dl=80/111320;let best=null,bd=1e9;for(const b of BL){if(Math.abs(b.la-la)>dl)continue;const d=dist(la,lo,b.la,b.lo);if(d>80)continue;const has=b.ph.some(p=>p[0]&&nm.startsWith(p[0].slice(0,Math.min(4,p[0].length))));const sc=d-(has?1000:0);if(sc<bd){bd=sc;best=b}}return best}
-function openB(b){BMODE=true;SEL=null;const dl=RB/111320;BIN=BL.filter(x=>Math.abs(x.la-b.la)<dl&&dist(b.la,b.lo,x.la,x.lo)<=RB);if(!BIN.includes(b))BIN.push(b);BIN.forEach(bcomp);bnorm();last=null;$('hint').style.display='none';$('out').innerHTML='<div class="mut">건물을 골랐어요. 이 자리 주변을 같이 보고 싶으면 지도의 빈 곳을 눌러 보세요.</div>';selB(b,false)}
+function openB(b){LOGD('bld',b.la,b.lo);BMODE=true;SEL=null;const dl=RB/111320;BIN=BL.filter(x=>Math.abs(x.la-b.la)<dl&&dist(b.la,b.lo,x.la,x.lo)<=RB);if(!BIN.includes(b))BIN.push(b);BIN.forEach(bcomp);bnorm();last=null;$('hint').style.display='none';$('out').innerHTML='<div class="mut">건물을 골랐어요. 이 자리 주변을 같이 보고 싶으면 지도의 빈 곳을 눌러 보세요.</div>';selB(b,false)}
 function selB(b,center){SB=b;if(center){CLAT=b.la;CLON=b.lo;Z=Math.max(Z,17)}renderB();draw();if(window.innerWidth<=820)$('bd').scrollIntoView({behavior:'smooth',block:'start'})}
 function renderB(){const b=SB,el=$('bd');if(!b){el.innerHTML='';return}const tot=btot(b),nM=b.md.length,nP=b.ph.length;
 const it=[...b.ph.map(p=>({t:'약국',n:p[0],f:p[1]})),...b.md.map(m=>({t:BT[m[2]].replace(' 의원',''),n:m[0],f:m[1]}))].sort((x,y)=>flr(y.f)-flr(x.f));
@@ -275,7 +284,7 @@ const have=new Set(b.c.map(x=>x[2])),rg0=(dongAt(b.la,b.lo)||{}).reg;let arr,lab
 const chips=[['ph','약국 있는 건물과'],['near','근처 건물과']].map(([m,l])=>'<button class="cmpb'+(CMPB===m?' on':'')+'" data-b="'+m+'">'+l+'</button>').join('');
 const chg=JSON.stringify(WB)!==JSON.stringify(WB0);
 let h='<div class="sec" style="border:2px solid var(--acc)"><h2>'+esc(bname(b))+'</h2><div class="mut">'+esc(b.ad)+' · 상가 '+b.n+'곳</div><div style="margin:6px 0"><b>'+vd+'</b></div>'
-+near+card('이 건물은',tot,arr,BTIERS,lab,chips,{n:b.P1,nM:nM},b.c,WB)+(CMPB==='ph'?'<div class="warn">이미 약국이 있는 건물(그 약국은 빼고 계산)과 견준 값이에요. 참고로만 보세요.</div>':'')
++near+card('이 건물은',tot,arr,BTIERS,lab,chips,{n:b.P1,nM:nM},b.c,WB)+(CMPB==='ph'?'<div class="warn meth">이미 약국이 있는 건물(그 약국은 빼고 계산)과 견준 값이에요. 참고로만 보세요.</div>':'')
 +'<h2 style="margin-top:12px">층별 병·의원·약국</h2><ul class="list">'+(it.length?it.map(x=>'<li><span>'+(x.f?(/^\d+$/.test(x.f)?x.f+'층':esc(x.f)):'층 미상')+'</span><span>'+esc(x.n)+' <span class="mut">'+esc(x.t)+'</span></span></li>').join(''):'<li class="mut">이 건물에는 병·의원과 약국이 없어요.</li>')+'</ul>'
 +'<details class="dt" id="bdt"'+(BSCOPEN?' open':'')+'><summary>점수가 어떻게 나왔어요? (항목별 점수)</summary><div class="score" style="margin-top:6px"><b>'+Math.round(tot)+'</b><span class="mut">/ 100 · 건물 점수</span></div>'
 +b.c.map(x=>'<div class="bar"><span>'+x[0]+'</span><div class="t"><i style="width:'+x[1]+'%;background:var(--acc)"></i></div><span>'+Math.round(x[1])+'</span></div><div class="mut" style="margin:-2px 0 4px 104px;font-size:12px">'+x[3]+'</div>').join('')
@@ -290,7 +299,7 @@ m.onchange=()=>{let v=Math.max(0,Math.min(12,parseFloat(m.value)||0));m.value=v;
 
 // ---- 검색 · 내 위치
 function toast(t){let e=$('toast');if(!e){e=document.createElement('div');e.id='toast';e.style.cssText='position:absolute;left:50%;top:14px;transform:translateX(-50%);background:#1f2933;color:#fff;padding:9px 14px;border-radius:10px;font-size:14px;z-index:30;max-width:80%;text-align:center';$('mapwrap').appendChild(e)}e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',3800)}
-async function goTo(la,lo,label){const ok=await ensureReg(la,lo);if(!ok){if(!regAt(la,lo))toast('아직 데이터가 없는 지역이에요 (서울·대구·경산만 있어요)');return false}
+async function goTo(la,lo,label){LOGD('go',la,lo);const ok=await ensureReg(la,lo);if(!ok){if(!regAt(la,lo))toast('아직 데이터가 없는 지역이에요 (서울·대구·경산만 있어요)');return false}
 CLAT=la;CLON=lo;Z=Math.max(Z,16.5);SEL=[la,lo];$('hint').style.display='none';analyze();draw();return true}
 $('loc').onclick=()=>{if(!navigator.geolocation){toast('이 브라우저는 위치 기능을 지원하지 않아요');return}
 toast('내 위치를 찾는 중이에요…');navigator.geolocation.getCurrentPosition(p=>{goTo(p.coords.latitude,p.coords.longitude).then(ok=>{if(ok)toast('내 위치에 핀을 찍었어요')})},e=>toast(e.code===1?'위치 권한이 꺼져 있어요. 브라우저 설정에서 허용해 주세요':'위치를 가져오지 못했어요'),{enableHighAccuracy:true,timeout:10000})};
@@ -298,7 +307,7 @@ const nrm=t=>String(t||'').toLowerCase().replace(/\s+/g,'').replace(/서울특�
 let CURREG='seoul';
 const RCEN={seoul:[37.5665,126.978,14.5],daegu:[35.8714,128.6014,14.5]},RNAME={seoul:'서울',daegu:'대구'};
 const inReg=(la,lo)=>{const r=REGS.find(x=>x.k===CURREG);return la>=r.b[0]&&la<=r.b[2]&&lo>=r.b[1]&&lo<=r.b[3]};
-function setReg(k,jump){CURREG=k;document.querySelectorAll('#regbar button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('q').placeholder=(k==='seoul'?'서울':'대구·경산')+' 안에서 검색 ('+(k==='seoul'?'예: 가좌로 30, 신촌세브란스':'예: 동성로, 경산시청, 영남대')+')';$('qr').style.display='none';
+function setReg(k,jump){if(jump)LOGE('reg',{r:k});CURREG=k;document.querySelectorAll('#regbar button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('q').placeholder=(k==='seoul'?'서울':'대구·경산')+' 안에서 검색 ('+(k==='seoul'?'예: 가좌로 30, 신촌세브란스':'예: 동성로, 경산시청, 영남대')+')';$('qr').style.display='none';
 if(jump){const c=RCEN[k];CLAT=c[0];CLON=c[1];Z=c[2];SEL=null;BMODE=false;SB=null;BIN=[];last=null;$('out').innerHTML='<div class="mut">지도에서 보고 싶은 자리를 누르면 그 주변의 약국, 병·의원, 인구를 보여줘요.</div>';$('bd').innerHTML='';$('hint').style.display='';ensureReg(c[0],c[1]);draw()}}
 document.querySelectorAll('#modebar button,#modal button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 document.querySelectorAll('#regbar button').forEach(b=>b.onclick=()=>setReg(b.dataset.k,true));
@@ -327,4 +336,29 @@ function twApply(){applyTW();GUC=null;PHC=null;PHB=null;if(SEL){analyze();draw()
 $('twreset').onclick=()=>{Object.assign(TW,TW0);twUI();twApply()};
 applyTW();twUI();
 window.addEventListener('resize',resize);resize();ensureReg(CLAT,CLON);
+
+// ---- 이용 통계 · 의견 (LOG_URL이 비어 있으면 아무것도 보내지 않아요)
+const LOG_URL='https://script.google.com/macros/s/AKfycbyDio4JB_eY7foR7R9WLskR_NJG3HFrtaufTXq9x5KTNGRe-UkLHYpXaGW2pmeqGwM/exec';
+let OWNER=false;try{const q=location.search;if(/[?&]owner=1/.test(q))localStorage.setItem('pm_owner','1');if(/[?&]owner=0/.test(q))localStorage.removeItem('pm_owner');OWNER=localStorage.getItem('pm_owner')==='1'}catch(e){OWNER=/[?&]owner=1/.test(location.search)}
+document.body.classList.toggle('owner',OWNER);
+let UID='';try{UID=localStorage.getItem('pm_uid')||'';if(!UID){UID=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()).replace(/-/g,'').slice(0,12);localStorage.setItem('pm_uid',UID)}}catch(e){UID='x'+Math.random().toString(36).slice(2,8)}
+function LOGPOST(o){if(!LOG_URL)return;try{fetch(LOG_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o),keepalive:true}).catch(()=>{})}catch(e){}}
+function LOGE(e,x){if(!LOG_URL||OWNER)return;LOGPOST(Object.assign({t:'ev',u:UID,e},{r:CURREG,m:MODE},x||{}))}
+function LOGD(e,la,lo){if(!LOG_URL||OWNER)return;let dg=null;try{dg=dongAt(la,lo)}catch(_){}LOGE(e,{r:dg?dg.reg:CURREG,d:dg?dg.n:''})}
+if(LOG_URL){$('cmbox').style.display='';$('lognote').style.display='';LOGE('visit')}
+let CMT=0;$('cmsend').onclick=()=>{const tx=$('cmtx').value.trim(),st=$('cmst');if(tx.length<2){st.textContent='내용을 적어 주세요';return}if(Date.now()-CMT<15000){st.textContent='잠시 후에 다시 보내 주세요';return}CMT=Date.now();let d='';try{const dg=last&&last.dg||(SB&&SB.dg);d=dg?dg.n:''}catch(_){}
+LOGPOST({t:'cm',u:UID,nick:$('cmnk').value.trim().slice(0,20),x:tx.slice(0,500),m:MODE,r:CURREG,d});$('cmtx').value='';st.textContent='고마워요! 잘 받았어요 🙏'};
+$('stx').onclick=()=>{$('stm').style.display='none'};
+$('stbtn').onclick=async()=>{const md=$('stm'),bd=$('stb');md.style.display='flex';let tok='';try{tok=localStorage.getItem('pm_tok')||''}catch(_){}
+const ask=()=>{bd.innerHTML='<div class="mut" style="margin-bottom:6px">통계 비밀번호를 입력하세요 (Apps Script의 TOKEN 값)</div><input id="tkin" type="password" value="'+esc(tok)+'"><button class="cmpb" id="tkgo" style="margin-top:8px">불러오기</button>';$('tkgo').onclick=()=>{tok=$('tkin').value.trim();try{localStorage.setItem('pm_tok',tok)}catch(_){}load()}};
+const load=async()=>{if(!LOG_URL){bd.innerHTML='<div class="mut">아직 통계 저장소(LOG_URL)가 연결되지 않았어요.</div>';return}bd.innerHTML='<div class="mut">불러오는 중…</div>';
+try{const r=await fetch(LOG_URL+'?token='+encodeURIComponent(tok));const j=await r.json();if(!j.ok){tok='';ask();bd.insertAdjacentHTML('afterbegin','<div class="warn">비밀번호가 맞지 않아요</div>');return}showStats(j)}catch(e){bd.innerHTML='<div class="warn">불러오지 못했어요. 주소나 배포 설정을 확인해 주세요.</div>'}};
+if(tok)load();else ask()};
+function showStats(j){const MN={rx:'처방',home:'동네·OTC',beauty:'뷰티'},RN={seoul:'서울',daegu:'대구·경산'};const tb=(h,rows)=>'<table><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</table>';
+let h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px"><div><b style="font-size:20px">'+j.users+'</b><div class="mut">이용자(익명 번호)</div></div><div><b style="font-size:20px">'+j.picks+'</b><div class="mut">지점·건물 눌러 본 횟수</div></div><div><b style="font-size:20px">'+j.visits+'</b><div class="mut">방문</div></div></div>';
+h+='<div class="mut" style="margin:10px 0 2px">지역 · 모드별 눌러 본 횟수</div>'+tb(['구분','횟수'],Object.entries(j.byReg).map(([k,v])=>[RN[k]||k,v]).concat(Object.entries(j.byMode).map(([k,v])=>['모드 '+(MN[k]||k),v])));
+h+='<div class="mut" style="margin:10px 0 2px">가장 많이 확인한 동네 TOP 15</div>'+tb(['동네','횟수'],j.topDongs);
+h+='<div class="mut" style="margin:10px 0 2px">이용자별 (많이 쓴 순, 상위 30명)</div>'+tb(['번호','횟수','가장 많이 본 동네','주로 쓴 모드'],j.byUser.map(u=>[u.u.slice(0,6),u.n,u.top,MN[u.mode]||u.mode]));
+h+='<div class="mut" style="margin:10px 0 2px">남겨 주신 의견 ('+j.comments.length+')</div>'+(j.comments.length?j.comments.map(c=>'<div style="border:1px solid var(--line);border-radius:10px;padding:8px;margin:6px 0"><div class="mut" style="font-size:12px">'+esc(c.ts)+' · '+esc(c.nick||'익명')+' · '+esc(c.u.slice(0,6))+' · '+esc((RN[c.r]||c.r)+' '+(c.d||''))+' · '+esc(MN[c.m]||c.m)+'</div><div style="white-space:pre-wrap">'+esc(c.x)+'</div></div>').join(''):'<div class="mut">아직 없어요</div>');
+$('stb').innerHTML=h}
 </script></body></html>
