@@ -50,6 +50,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
 .pend{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-bottom:4px}
 .dt{margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
 .dt summary{cursor:pointer;font-size:14px;color:var(--hs)}
+.cmpx{margin-top:14px;border-top:0;padding-top:0}.cmpx summary{list-style:none;text-align:center;font-size:17px;font-weight:800;color:#fff;background:var(--acc);border-radius:14px;padding:13px 14px;box-shadow:0 2px 8px rgba(224,106,69,.35)}.cmpx summary::-webkit-details-marker{display:none}.cmpx summary small{display:block;font-size:12.5px;font-weight:500;opacity:.92;margin-top:2px}.cmpx[open] summary{border-radius:14px 14px 0 0}.cmpx .chips{background:var(--card);border-radius:0 0 14px 14px;padding:10px;margin-top:0!important}
 .vt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .vt b{font-size:17px}
 .vd .mut span{white-space:nowrap}
@@ -240,7 +241,7 @@ const ul=a=>a.length?'<ul>'+a.map(s=>'<li>'+s+'</li>').join('')+'</ul>':'<div cl
 return'<div class="rs"><div><b>👍 좋은 점</b>'+ul(good)+'</div><div><b>👎 아쉬운 점</b>'+ul(bad)+'</div></div>'}
 function card(who,v,arr,pool,cmpLabel,chips,ctx,c,W){const n=arr.length;if(n<5)return'';const mean=arr.reduce((a,b)=>a+b,0)/n,lower=arr.filter(x=>x<v).length+arr.filter(x=>x===v).length/2,p=lower/n*100,k=Math.round(lower);
 const T=TIERS.find(x=>p>=x[0])||TIERS[4],lines=pool?pool[T[1]]:T[3],s=Math.abs(Math.round(v*100+n))%lines.length;
-return'<div class="vd"><div class="vt"><span class="tag" style="background:'+T[2]+'">'+T[1]+'</span><b>'+who+' '+TT[T[1]]+'</b></div><div class="mut">'+cmpLabel+' '+fmt(n)+'곳 중 <b>'+fmt(k)+'곳</b>보다 점수가 높아요 <span>(이 자리 '+Math.round(v)+'점 · 평균 '+Math.round(mean)+'점)</span></div><div class="pbar" role="img" aria-label="'+n+'곳 중 '+k+'곳보다 높음"><i style="left:'+Math.max(2,Math.min(98,p)).toFixed(0)+'%"></i></div><div class="pend"><span>낮음</span><span>높음</span></div><p>'+lines[s]+'</p>'+reasons(c,W,ctx)+'<details class="dt"><summary>비교 대상 바꾸기</summary><div class="chips" style="margin-top:6px">'+chips+'</div></details></div>'}
+return'<div class="vd"><div class="vt"><span class="tag" style="background:'+T[2]+'">'+T[1]+'</span><b>'+who+' '+TT[T[1]]+'</b></div><div class="mut">'+cmpLabel+' '+fmt(n)+'곳 중 <b>'+fmt(k)+'곳</b>보다 점수가 높아요 <span>(이 자리 '+Math.round(v)+'점 · 평균 '+Math.round(mean)+'점)</span></div><div class="pbar" role="img" aria-label="'+n+'곳 중 '+k+'곳보다 높음"><i style="left:'+Math.max(2,Math.min(98,p)).toFixed(0)+'%"></i></div><div class="pend"><span>낮음</span><span>높음</span></div><p>'+lines[s]+'</p>'+reasons(c,W,ctx)+'<details class="dt cmpx"><summary>🔄 비교 대상을 바꿔 보세요!<small>무엇과 견주느냐에 따라 순위가 달라져요</small></summary><div class="chips" style="margin-top:6px">'+chips+'</div></details></div>'}
 const FL=dg=>dg.wd?dg.wd[12]:(dg.fp!=null?dg.fp:null);
 let MODE='rx';
 const PRE={rx:{WT:{w:45,c:35,r:12,f:8,a:10},WB:{in:45,gap:35,w1:8,c1:5,r:4,f:3,a:3}},home:{WT:{w:15,c:30,r:30,f:10,a:15},WB:{in:10,gap:25,w1:8,c1:17,r:25,f:5,a:10}},beauty:{WT:{w:5,c:25,r:15,f:35,a:20},WB:{in:3,gap:20,w1:3,c1:20,r:12,f:30,a:12}}};
