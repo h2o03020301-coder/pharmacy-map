@@ -153,6 +153,10 @@ h2{font-weight:800}
  .app>.legend{position:static;max-width:none;background:var(--bg);font-size:12px;gap:6px 12px;padding:8px 12px!important;border-radius:14px!important}
  .app>#cmfab{position:static!important;display:block!important;width:100%;box-sizing:border-box;margin:0!important;border-radius:14px!important;height:44px}
 }
+.fb{margin:12px 0 2px;padding:12px;border-radius:14px;background:var(--card);text-align:center;font-size:13.5px}
+.fb .fbb{display:flex;gap:8px;margin-top:8px}
+.fb button{flex:1;border:0;border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;background:var(--bg);color:var(--fg);box-shadow:var(--sh);cursor:pointer}
+.fb input{flex:1;min-width:0;font:inherit;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}
 </style></head><body>
 <div class="app">
 <nav id="side">
@@ -345,7 +349,7 @@ return'<div class="rs"><div><b>👍 좋은 점</b>'+ul(good)+'</div><div><b>👎
 function card(who,v,arr,pool,cmpLabel,chips,ctx,c,W){const n=arr.length;if(n<5)return'';const mean=arr.reduce((a,b)=>a+b,0)/n,lower=arr.filter(x=>x<v).length+arr.filter(x=>x===v).length/2,p=lower/n*100,k=Math.round(lower);
 const T=TIERS.find(x=>p>=x[0])||TIERS[4],lines=pool?pool[T[1]]:T[3],s=Math.abs(Math.round(v*100+n))%lines.length;
 const sv=Math.max(0,Math.min(100,v)),R=34,C=2*Math.PI*R,dn='<svg class="dn" viewBox="0 0 84 84" role="img" aria-label="점수 '+Math.round(v)+'점"><circle cx="42" cy="42" r="'+R+'" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="42" cy="42" r="'+R+'" fill="none" stroke="'+T[2]+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(C*sv/100).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 42 42)"/><text x="42" y="46" text-anchor="middle" class="dnv">'+Math.round(v)+'</text><text x="42" y="60" text-anchor="middle" class="dnu">점</text></svg>';
-return'<div class="vd"><div class="vh">'+dn+'<div class="vhr"><div class="vt"><span class="tag" style="background:'+T[2]+'">'+T[1]+'</span><b>'+who+' '+TT[T[1]]+'</b></div><div class="mut">'+cmpLabel+' '+fmt(n)+'곳 중 <b>'+fmt(k)+'곳</b>보다 점수가 높아요 <span>(평균 '+Math.round(mean)+'점)</span></div></div></div><div class="pbar" role="img" aria-label="'+n+'곳 중 '+k+'곳보다 높음"><i style="left:'+Math.max(2,Math.min(98,p)).toFixed(0)+'%"></i></div><div class="pend"><span>낮음</span><span>높음</span></div><p>'+lines[s]+'</p>'+reasons(c,W,ctx)+'<details class="dt cmpx"><summary>🔄 비교 대상을 바꿔 보세요!<small>무엇과 견주느냐에 따라 순위가 달라져요</small></summary><div class="chips" style="margin-top:6px">'+chips+'</div></details></div>'}
+return'<div class="vd"><div class="vh">'+dn+'<div class="vhr"><div class="vt"><span class="tag" style="background:'+T[2]+'">'+T[1]+'</span><b>'+who+' '+TT[T[1]]+'</b></div><div class="mut">'+cmpLabel+' '+fmt(n)+'곳 중 <b>'+fmt(k)+'곳</b>보다 점수가 높아요 <span>(평균 '+Math.round(mean)+'점)</span></div></div></div><div class="pbar" role="img" aria-label="'+n+'곳 중 '+k+'곳보다 높음"><i style="left:'+Math.max(2,Math.min(98,p)).toFixed(0)+'%"></i></div><div class="pend"><span>낮음</span><span>높음</span></div><p>'+lines[s]+'</p>'+reasons(c,W,ctx)+fbBlock(who,v,T[1])+'<details class="dt cmpx"><summary>🔄 비교 대상을 바꿔 보세요!<small>무엇과 견주느냐에 따라 순위가 달라져요</small></summary><div class="chips" style="margin-top:6px">'+chips+'</div></details></div>'}
 const FL=dg=>dg.wd?dg.wd[12]:(dg.fp!=null?dg.fp:null);
 let MODE='rx';
 const PRE={rx:{WT:{w:45,c:35,r:12,f:8,a:10},WB:{in:45,gap:35,w1:8,c1:5,r:4,f:3,a:3}},home:{WT:{w:15,c:30,r:30,f:10,a:15},WB:{in:10,gap:25,w1:8,c1:17,r:25,f:5,a:10}},beauty:{WT:{w:5,c:25,r:15,f:35,a:20},WB:{in:3,gap:20,w1:3,c1:20,r:12,f:30,a:12}}};
@@ -466,6 +470,7 @@ if(tok)load();else ask()};
 function showStats(j){const MN={rx:'처방',home:'동네·OTC',beauty:'뷰티'},RN={seoul:'서울',daegu:'대구·경산'};const tb=(h,rows)=>'<table><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</table>';
 let h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px"><div><b style="font-size:20px">'+j.users+'</b><div class="mut">이용자(익명 번호)</div></div><div><b style="font-size:20px">'+j.picks+'</b><div class="mut">지점·건물 눌러 본 횟수</div></div><div><b style="font-size:20px">'+j.visits+'</b><div class="mut">방문</div></div></div>';
 h+='<div class="mut" style="margin:10px 0 2px">지역 · 모드별 눌러 본 횟수</div>'+tb(['구분','횟수'],Object.entries(j.byReg).map(([k,v])=>[RN[k]||k,v]).concat(Object.entries(j.byMode).map(([k,v])=>['모드 '+(MN[k]||k),v])));
+if(j.fb){const t=j.fb.up+j.fb.down;h+='<div class="mut" style="margin:10px 0 2px">결과 반응 (👍 '+j.fb.up+' · 👎 '+j.fb.down+(t?' · 맞다는 비율 '+Math.round(j.fb.up/t*100)+'%':'')+')</div>'+(j.fb.downTop&&j.fb.downTop.length?tb(['👎가 많은 동네','횟수'],j.fb.downTop):'')}
 h+='<div class="mut" style="margin:10px 0 2px">가장 많이 확인한 동네 TOP 15</div>'+tb(['동네','횟수'],j.topDongs);
 h+='<div class="mut" style="margin:10px 0 2px">이용자별 (많이 쓴 순, 상위 30명)</div>'+tb(['번호','횟수','가장 많이 본 동네','주로 쓴 모드'],j.byUser.map(u=>[u.u.slice(0,6),u.n,u.top,MN[u.mode]||u.mode]));
 h+='<div class="mut" style="margin:10px 0 2px">남겨 주신 의견 ('+j.comments.length+')</div>'+(j.comments.length?j.comments.map(c=>'<div style="border:1px solid var(--line);border-radius:10px;padding:8px;margin:6px 0"><div class="mut" style="font-size:12px">'+esc(c.ts)+' · '+esc(c.nick||'익명')+' · '+esc(c.u.slice(0,6))+' · '+esc((RN[c.r]||c.r)+' '+(c.d||''))+' · '+esc(MN[c.m]||c.m)+'</div><div style="white-space:pre-wrap">'+esc(c.x)+'</div></div>').join(''):'<div class="mut">아직 없어요</div>');
@@ -506,4 +511,20 @@ function place(){if(mq.matches){if(tb.parentNode!==app)app.insertBefore(tb,mw);i
 else{[tb,lg,fb].forEach(e=>{if(e&&e.parentNode!==mw)mw.appendChild(e)})}
 try{dispatchEvent(new Event('resize'))}catch(_){}}
 place();(mq.addEventListener?mq.addEventListener('change',place):mq.addListener(place))})();
+
+// ---- 결과 원탭 반응 (맞아요 / 아닌 것 같아요)
+const FBV={};
+function fbKey(who,v){let k=who+'|'+MODE+'|'+Math.round(v);try{k+='|'+(who==='여기 입지는'?(last&&last.dg?last.dg.n:''):(SB&&SB.ad?SB.ad:''))}catch(_){}return k}
+function fbBlock(who,v,g){if(!LOG_URL)return'';const k=fbKey(who,v),st=FBV[k],ka=esc(k);
+let h='<div class="fb" data-k="'+ka+'" data-s="'+Math.round(v)+'" data-g="'+esc(g)+'">';
+if(!st)h+='<div><b>이 결과가 맞는 것 같나요?</b></div><div class="fbb"><button type="button" data-fb="up">👍 맞아요</button><button type="button" data-fb="down">👎 아닌 것 같아요</button></div>';
+else if(st.v==='up')h+='<div>고마워요! 🙌 다른 자리도 눌러 보세요.</div>';
+else if(st.done)h+='<div>고마워요! 🙏 알려 주신 내용을 살펴볼게요.</div>';
+else h+='<div><b>어디가 이상했나요?</b> <span class="mut">한 줄이면 충분해요</span></div><div class="fbb"><input type="text" maxlength="120" placeholder="예: 여기는 약국이 이미 너무 많아요" data-fbx><button type="button" data-fb="send" style="flex:none">보내기</button></div>';
+return h+'</div>'}
+function fbCtx(el){const bx=el.closest('.fb');let dg=null;try{dg=last&&last.dg||(SB&&SB.dg)}catch(_){}return{bx,k:bx.dataset.k,s:+bx.dataset.s,g:bx.dataset.g,d:dg?dg.n:'',r:dg?dg.reg:CURREG}}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-fb]');if(!b)return;const c=fbCtx(b),a=b.dataset.fb;
+if(a==='up'||a==='down'){FBV[c.k]={v:a};if(!OWNER)LOGPOST({t:'fb',u:UID,v:a,s:c.s,g:c.g,m:MODE,r:c.r,d:c.d});}
+else if(a==='send'){const inp=c.bx.querySelector('[data-fbx]'),tx=(inp.value||'').trim();if(tx.length<2){inp.focus();return}if(!OWNER)LOGPOST({t:'cm',u:UID,nick:'👎 반응',x:tx,m:MODE,r:c.r,d:c.d});FBV[c.k].done=1}
+if(last)score();else if(SB)renderB()});
 </script></body></html>
