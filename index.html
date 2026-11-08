@@ -474,8 +474,8 @@ let h='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px"><div>
 h+='<div class="mut" style="margin:10px 0 2px">지역 · 모드별 눌러 본 횟수</div>'+tb(['구분','횟수'],Object.entries(j.byReg).map(([k,v])=>[RN[k]||k,v]).concat(Object.entries(j.byMode).map(([k,v])=>['모드 '+(MN[k]||k),v])));
 if(j.fb){const t=j.fb.up+j.fb.down;h+='<div class="mut" style="margin:10px 0 2px">결과 반응 (👍 '+j.fb.up+' · 👎 '+j.fb.down+(t?' · 맞다는 비율 '+Math.round(j.fb.up/t*100)+'%':'')+')</div>'+(j.fb.downTop&&j.fb.downTop.length?tb(['👎가 많은 동네','횟수'],j.fb.downTop):'')}
 h+='<div class="mut" style="margin:10px 0 2px">가장 많이 확인한 동네 TOP 15</div>'+tb(['동네','횟수'],j.topDongs);
-h+='<div class="mut" style="margin:10px 0 2px">이용자별 (많이 쓴 순, 상위 30명)</div>'+tb(['번호','횟수','가장 많이 본 동네','주로 쓴 모드'],j.byUser.map(u=>[u.u.slice(0,6),u.n,u.top,MN[u.mode]||u.mode]));
-h+='<div class="mut" style="margin:10px 0 2px">남겨 주신 의견 ('+j.comments.length+')</div>'+(j.comments.length?j.comments.map(c=>'<div style="border:1px solid var(--line);border-radius:10px;padding:8px;margin:6px 0"><div class="mut" style="font-size:12px">'+esc(c.ts)+' · '+esc(c.nick||'익명')+' · '+esc(c.u.slice(0,6))+' · '+esc((RN[c.r]||c.r)+' '+(c.d||''))+' · '+esc(MN[c.m]||c.m)+'</div><div style="white-space:pre-wrap">'+esc(c.x)+'</div></div>').join(''):'<div class="mut">아직 없어요</div>');
+h+='<div class="mut" style="margin:10px 0 2px">이용자별 (많이 쓴 순, 상위 30명)</div>'+tb(['번호','횟수','가장 많이 본 동네','주로 쓴 모드'],j.byUser.map(u=>[String(u.u).slice(0,6),u.n,u.top,MN[u.mode]||u.mode]));
+h+='<div class="mut" style="margin:10px 0 2px">남겨 주신 의견 ('+j.comments.length+')</div>'+(j.comments.length?j.comments.map(c=>'<div style="border:1px solid var(--line);border-radius:10px;padding:8px;margin:6px 0"><div class="mut" style="font-size:12px">'+esc(c.ts)+' · '+esc(c.nick||'익명')+' · '+esc(String(c.u).slice(0,6))+' · '+esc((RN[c.r]||c.r)+' '+(c.d||''))+' · '+esc(MN[c.m]||c.m)+'</div><div style="white-space:pre-wrap">'+esc(c.x)+'</div></div>').join(''):'<div class="mut">아직 없어요</div>');
 $('stb').innerHTML=h}
 
 // ---- 소유자가 정한 가중치를 모든 이용자에게 적용 (구글 시트의 config 탭에 저장)
