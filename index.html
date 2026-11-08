@@ -528,5 +528,5 @@ function fbCtx(el){const bx=el.closest('.fb');let dg=null;try{dg=last&&last.dg||
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-fb]');if(!b)return;const c=fbCtx(b),a=b.dataset.fb;
 if(a==='up'||a==='down'){FBV[c.k]={v:a};if(!OWNER)LOGPOST({t:'fb',u:UID,v:a,s:c.s,g:c.g,m:MODE,r:c.r,d:c.d});}
 else if(a==='send'){const inp=c.bx.querySelector('[data-fbx]'),tx=(inp.value||'').trim();if(tx.length<2){inp.focus();return}if(!OWNER)LOGPOST({t:'cm',u:UID,nick:'👎 반응',x:tx,m:MODE,r:c.r,d:c.d});FBV[c.k].done=1}
-if(last)score();else if(SB)renderB()});
+if(c.bx.closest('#bd')){if(SB)renderB()}else if(last)score()});
 </script></body></html>
