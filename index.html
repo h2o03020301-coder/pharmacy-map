@@ -157,6 +157,7 @@ h2{font-weight:800}
 .fb .fbb{display:flex;gap:8px;margin-top:8px}
 .fb button{flex:1;border:0;border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;background:var(--bg);color:var(--fg);box-shadow:var(--sh);cursor:pointer}
 .fb input{flex:1;min-width:0;font:inherit;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}
+.cred{font-size:12.5px;line-height:1.5;color:var(--mut);margin:6px 0 14px}.cred b{color:var(--fg)}.cred a{color:var(--pri);font-weight:600;text-decoration:none}
 </style></head><body>
 <div class="app">
 <nav id="side">
@@ -186,7 +187,7 @@ h2{font-weight:800}
 <button class="mcard" data-m="beauty"><i class="ic">🧴</i><span><b>뷰티 약국</b><small>유동인구와 20~30대, 지나가다 들르는 수요가 핵심</small></span></button></div></div></div>
 <div id="gm" style="position:fixed;inset:0;z-index:58;background:rgba(20,30,60,.5);display:none;align-items:center;justify-content:center;padding:16px"><div class="dlg" style="max-height:88vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center"><div class="dh">이용 안내</div><button class="tbtn" id="gmx" style="height:34px;box-shadow:none;background:var(--card)">닫기</button></div>
 <ol class="gl"><li><b>약국 유형을 고르세요.</b> 처방 중심 / 동네·일반의약품 / 뷰티 중에서 고르면 점수 기준이 바뀌어요.</li><li><b>지도를 눌러 보세요.</b> 누른 자리 반경 100m의 약국, 병·의원, 인구를 보고 입지 점수를 알려줘요.</li><li><b>건물을 눌러 보세요.</b> 주변 500m에서 입점하기 좋은 건물 TOP 5도 같이 보여줘요.</li><li><b>비교 대상을 바꿔 보세요.</b> 이미 문 연 약국 자리, 이 근처, 구 전체 중 무엇과 견주느냐에 따라 순위가 달라져요.</li><li><b>주소·장소를 검색하세요.</b> 위쪽 검색창에 주소나 건물, 역 이름을 넣으면 그 자리로 이동해요.</li></ol>
-<div class="mut" style="margin-top:8px">재미로 만든 참고용 지도예요. 실제 입점 판단의 근거로 쓰지 마세요.</div></div></div>
+<div class="mut" style="margin-top:8px">재미로 만든 참고용 지도예요. 실제 입점 판단의 근거로 쓰지 마세요.</div><div class="cred" style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)">약대생 <b>개발자 김준현</b>이 만들었어요. 의견은 언제든 환영해요 · 인스타그램 <a href="https://www.instagram.com/ca_jun_03/" target="_blank" rel="noopener noreferrer">@ca_jun_03</a></div></div></div>
 <div class="zoom"><button id="loc" aria-label="내 위치" title="내 위치" style="font-size:18px">📍</button><button id="zi" aria-label="확대">+</button><button id="zo" aria-label="축소">−</button></div>
 <div class="legend"><span><i style="background:var(--ph)"></i>약국</span><span><i style="background:#d6336c;border-radius:2px"></i>대형병원</span><span><i style="background:var(--hs)"></i>약 처방과 관련이 큰 병·의원(가정)</span><span><i style="background:var(--gy)"></i>그 밖의 병·의원</span><span><i style="background:#e06a45;border-radius:2px"></i>건물 (진할수록 점수 높음)</span></div>
 <div class="attr">지도 © OpenStreetMap contributors</div></div>
@@ -198,6 +199,7 @@ h2{font-weight:800}
 <div class="warn meth">자료 기준: 상가(상권)정보 2026년 9월, 심평원 요양기관 2025년 12월(상가정보에 없는 병·의원·약국 보충), 서울 생활인구 2026년 7월(내국인), 주민등록 인구 2026년 10월. 연령 구성은 서대문·은평·마포구만 있고 생활인구는 서울만 있어서, 자료가 없는 곳은 그 항목을 빼고 계산해요. 동 경계는 상가 위치로 근사한 값이라 경계 근처에서는 오차가 있어요. 참고 점수는 가정에 따른 계산이고 실제 개국 판단용이 아니에요.</div>
 <div class="mut" id="lognote" style="display:none;font-size:12px;line-height:1.5;margin-top:8px">이용 통계(임의로 만든 익명 번호, 눌러 본 동네·모드·횟수)와 남기신 의견이 저장돼요. 이름이나 정확한 위치는 모으지 않아요.</div>
 <div class="mut" style="margin:18px 0 8px;font-size:12px;line-height:1.5">재미로 만든 참고용 지도예요. 실제 입점 판단의 근거로 쓰지 마세요. 점수 가중치와 기준은 제가 정한 가정이고, 심평원 자료는 2025년 12월 기준이라 최근 개원은 빠져 있을 수 있어요.<br>자료 출처: 소상공인시장진흥공단 상가(상권)정보(2026.09), 건강보험심사평가원 요양기관 개설현황(2025.12), 행정안전부 주민등록 인구·연령, 서울 열린데이터광장 생활인구, 지도 © OpenStreetMap contributors. 대구·경산의 낮 유동은 상가 밀집도로 추정한 값이에요.</div>
+<div class="cred">만든 사람 · <b>개발자 김준현</b> · 인스타그램 <a href="https://www.instagram.com/ca_jun_03/" target="_blank" rel="noopener noreferrer">@ca_jun_03</a></div>
 </aside></div>
 <script>
 const D={types:[],names:[]};
@@ -394,7 +396,7 @@ if(sib.length){const sp=sib.flatMap(x=>x.ph.map(p=>p[0]+'('+x.ad.replace(/^서�
 const have=new Set(b.c.map(x=>x[2])),rg0=(dongAt(b.la,b.lo)||{}).reg;let arr,lab;if(CMPB==='near'){arr=BIN.map(x=>btotC(x.c,have));lab='이 근처 건물'}else{arr=phBld(rg0).map(c=>btotC(c,have));lab='이미 약국이 있는 건물'}
 const chips=[['ph','약국 있는 건물과'],['near','근처 건물과']].map(([m,l])=>'<button class="cmpb'+(CMPB===m?' on':'')+'" data-b="'+m+'">'+l+'</button>').join('');
 const chg=JSON.stringify(WB)!==JSON.stringify(WB0);
-let h='<div class="sec" style="border:2px solid var(--acc)"><h2>'+esc(bname(b))+'</h2><div class="mut">'+esc(b.ad)+' · 상가 '+b.n+'곳</div><div style="margin:6px 0"><b>'+vd+'</b></div>'
+let h='<div class="sec" style="border:2px solid var(--acc)"><h2>'+esc(bname(b))+'</h2><div class="mut">'+esc(b.ad)+(b.n>0?' · 상가 '+b.n+'곳':' · 단지 안 다른 동')+'</div><div style="margin:6px 0"><b>'+vd+'</b></div>'
 +near+card('이 건물은',tot,arr,BTIERS,lab,chips,{n:b.P1,nM:nM},b.c,WB)+(CMPB==='ph'?'<div class="warn meth">이미 약국이 있는 건물(그 약국은 빼고 계산)과 견준 값이에요. 참고로만 보세요.</div>':'')
 +'<h2 style="margin-top:12px">층별 병·의원·약국</h2><ul class="list">'+(it.length?it.map(x=>'<li><span>'+(x.f?(/^\d+$/.test(x.f)?x.f+'층':esc(x.f)):'층 미상')+'</span><span>'+esc(x.n)+' <span class="mut">'+esc(x.t)+'</span></span></li>').join(''):'<li class="mut">이 건물에는 병·의원과 약국이 없어요.</li>')+'</ul>'
 +'<details class="dt" id="bdt"'+(BSCOPEN?' open':'')+'><summary>점수가 어떻게 나왔어요? (항목별 점수)</summary><div class="score" style="margin-top:6px"><b>'+Math.round(tot)+'</b><span class="mut">/ 100 · 건물 점수</span></div>'
